@@ -1,4 +1,4 @@
-// ProfileCard.jsx — redesigned layout matching mockup
+// ProfileCard.jsx
 
 function str(value) {
   if (value === null || value === undefined) return '—'
@@ -16,14 +16,12 @@ function ecToString(ec) {
   return str(ec)
 }
 
-// Section card with colored background and Playfair Display header
 function SectionCard({ title, color, children }) {
   const colors = {
     lavender: 'bg-[#E8E4F3]',
     sage:     'bg-[#D6EAD8]',
     cream:    'bg-[#F5EDD6]',
     sky:      'bg-[#D4EAF5]',
-    blush:    'bg-[#F5D9D6]',
     teal:     'bg-[#C8E6E2]',
   }
   return (
@@ -40,8 +38,7 @@ function SectionCard({ title, color, children }) {
 function StatRow({ label, value }) {
   return (
     <div className="flex justify-between items-baseline py-1 border-b border-black/10 last:border-0">
-      <span style={{ fontFamily: "'Inter', sans-serif" }}
-            className="text-sm text-slate-600">
+      <span style={{ fontFamily: "'Inter', sans-serif" }} className="text-sm text-slate-600">
         {label}
       </span>
       <span style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -52,9 +49,45 @@ function StatRow({ label, value }) {
   )
 }
 
-export default function ProfileCard({ profile }) {
+// Cycles: null → 'Admitted' → 'Waitlisted' → 'Rejected' → null
+const CYCLE = [null, 'Admitted', 'Waitlisted', 'Rejected']
+
+const ICON = {
+  Admitted:   '/icons/admitted.png',
+  Waitlisted: '/icons/waitlisted.png',
+  Rejected:   '/icons/rejected.png',
+}
+
+const ROW_BG = {
+  Admitted:   'bg-green-50',
+  Waitlisted: 'bg-yellow-50',
+  Rejected:   'bg-red-50',
+}
+
+function SchoolGuessRow({ school, guess, onCycle }) {
+  const bg = guess ? ROW_BG[guess] : 'hover:bg-black/5'
+  return (
+    <button
+      onClick={() => onCycle(school.id)}
+      className={`w-full flex items-center justify-between py-2.5 px-1
+                  border-b border-black/10 last:border-0 transition-colors
+                  text-left cursor-pointer rounded-lg ${bg}`}
+    >
+      <span className="text-sm text-slate-800 leading-snug pr-3">
+        {str(school.school_name)}
+      </span>
+      {guess
+        ? <img src={ICON[guess]} alt={guess} className="w-8 h-8 shrink-0" />
+        : <div className="w-8 h-8 shrink-0 rounded-lg border-2 border-dashed border-slate-300" />
+      }
+    </button>
+  )
+}
+
+export default function ProfileCard({ profile, guesses, onCycle }) {
   const extracurriculars = profile.extracurriculars ?? []
   const awards = profile.awards ?? []
+  const schools = profile.schools ?? []
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}
@@ -63,12 +96,11 @@ export default function ProfileCard({ profile }) {
       {/* ── Left column ── */}
       <div className="flex flex-col gap-4">
 
-        {/* Demographics — teal, top of left column */}
         <SectionCard title="Demographics" color="teal">
           <div className="grid grid-cols-2 gap-x-6 gap-y-2">
             {[
-              ['State', str(profile.state)],
-              ['Gender', str(profile.gender)],
+              ['State',     str(profile.state)],
+              ['Gender',    str(profile.gender)],
               ['Ethnicity', str(profile.race_ethnicity)],
               ['First-Gen', profile.first_gen ? 'Yes' : 'No'],
               ['Residency', profile.international ? 'International' : 'Domestic'],
@@ -81,19 +113,17 @@ export default function ProfileCard({ profile }) {
           </div>
         </SectionCard>
 
-        {/* Academics — lavender */}
         <SectionCard title="Academics" color="lavender">
           <div className="space-y-0.5">
-            {profile.sat    && <StatRow label="SAT"           value={Number(profile.sat).toLocaleString()} />}
-            {profile.act    && <StatRow label="ACT"           value={str(profile.act)} />}
-            <StatRow label="Unweighted GPA"  value={str(profile.gpa_unweighted)} />
-            <StatRow label="Weighted GPA"    value={str(profile.gpa_weighted)} />
-            {profile.class_rank && <StatRow label="Class Rank" value={str(profile.class_rank)} />}
-            <StatRow label="AP Courses"      value={str(profile.ap_ib_count)} />
+            {profile.sat       && <StatRow label="SAT"           value={Number(profile.sat).toLocaleString()} />}
+            {profile.act       && <StatRow label="ACT"           value={str(profile.act)} />}
+            <StatRow label="Unweighted GPA" value={str(profile.gpa_unweighted)} />
+            <StatRow label="Weighted GPA"   value={str(profile.gpa_weighted)} />
+            {profile.class_rank && <StatRow label="Class Rank"   value={str(profile.class_rank)} />}
+            <StatRow label="AP Courses"     value={str(profile.ap_ib_count)} />
           </div>
         </SectionCard>
 
-        {/* Extracurriculars — sky */}
         {extracurriculars.length > 0 && (
           <SectionCard title="Extracurriculars" color="sky">
             <ol className="space-y-2 list-none">
@@ -115,7 +145,6 @@ export default function ProfileCard({ profile }) {
           </SectionCard>
         )}
 
-        {/* Awards — cream */}
         {awards.length > 0 && (
           <SectionCard title="Awards" color="cream">
             <ul className="space-y-2">
@@ -128,7 +157,6 @@ export default function ProfileCard({ profile }) {
             </ul>
           </SectionCard>
         )}
-
       </div>
 
       {/* ── Right column: College List ── */}
@@ -138,25 +166,27 @@ export default function ProfileCard({ profile }) {
               className="text-2xl font-semibold text-slate-800 mb-1">
             College List
           </h2>
-          <p className="text-xs text-slate-500 mb-4">
-            Check every school you think admitted this applicant.
+          <p className="text-xs text-slate-500 mb-1">
+            Tap each school to set your prediction.
           </p>
-          <div className="space-y-0">
-            {(profile.schools ?? []).map((school) => (
-              <label
+          {/* Icon legend */}
+          <div className="flex gap-3 mb-4">
+            {Object.entries(ICON).map(([label, src]) => (
+              <div key={label} className="flex items-center gap-1">
+                <img src={src} alt={label} className="w-4 h-4" />
+                <span className="text-xs text-slate-500">{label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            {schools.map((school) => (
+              <SchoolGuessRow
                 key={school.id}
-                className="flex items-center justify-between py-2.5 border-b border-black/10
-                           last:border-0 cursor-pointer group"
-              >
-                <span className="text-sm text-slate-800 group-hover:text-slate-900 leading-snug pr-3">
-                  {str(school.school_name)}
-                </span>
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 shrink-0 rounded border-slate-400 text-indigo-600
-                             cursor-pointer focus:ring-indigo-500 focus:ring-offset-0"
-                />
-              </label>
+                school={school}
+                guess={guesses[school.id] ?? null}
+                onCycle={onCycle}
+              />
             ))}
           </div>
         </div>
@@ -165,3 +195,5 @@ export default function ProfileCard({ profile }) {
     </div>
   )
 }
+
+export { CYCLE }
