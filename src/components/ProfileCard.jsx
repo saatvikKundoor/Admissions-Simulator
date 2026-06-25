@@ -1,4 +1,84 @@
-// ProfileCard.jsx
+import React, { useState, useRef } from 'react'
+
+/**
+ * ── Recreated EaseMize UI: GlowCard ──
+ * Dynamically tracks mouse positions using CSS custom properties
+ * and applies a configurable spot-glow hue over its children.
+ * Modified: Inline custom style rule to use a repository image as the cursor.
+ */
+function GlowCard({ 
+  children, 
+  className = '', 
+  color = 'teal', 
+  size, 
+  width, 
+  height, 
+  ...props 
+}) {
+  const cardRef = useRef(null)
+  const [coords, setCoords] = useState({ x: 0, y: 0 })
+  const [isHovered, setIsHovered] = useState(false)
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    setCoords({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    })
+  }
+
+  // Define rich color presets for the glow effect based on your setup
+  const glowColors = {
+    lavender: '124, 58, 237', // Deep purple glow
+    sage:     '22, 163, 74',   // Emerald green glow
+    cream:    '217, 119, 6',   // Warm amber glow
+    sky:      '2, 132, 199',   // Vibrant sky blue glow
+    teal:     '13, 148, 136',  // Deep teal glow
+  }
+
+  const rgb = glowColors[color] || '148, 163, 184'
+
+  const sizePresets = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+  }
+
+  const customStyle = {
+  '--mouse-x': `${coords.x}px`,
+  '--mouse-y': `${coords.y}px`,
+  '--glow-color': rgb,
+  cursor: "url(/icons/magnifying.png), auto", // Stripped the inner single quotes
+  ...(width && { width }),
+  ...(height && { height }),
+  }
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={customStyle}
+      className={`relative overflow-hidden ${size ? sizePresets[size] : ''} ${className}`}
+      {...props}
+    >
+      {/* Dynamic spotlight layer driven by CSS custom properties */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-300 hidden md:block"
+        style={{
+          opacity: isHovered ? 1 : 0,
+          background: `radial-gradient(300px circle at var(--mouse-x) var(--mouse-y), rgba(var(--glow-color), 0.22), transparent 80%)`,
+        }}
+      />
+      {/* Content wrapper ensures text/data renders above the background gradient */}
+      <div className="relative z-10 h-full w-full">
+        {children}
+      </div>
+    </div>
+  )
+}
 
 function str(value) {
   if (value === null || value === undefined) return '—'
@@ -16,6 +96,7 @@ function ecToString(ec) {
   return str(ec)
 }
 
+// SectionCard now wraps everything in the custom dynamic GlowCard component
 function SectionCard({ title, color, children }) {
   const colors = {
     lavender: 'bg-[#E8E4F3]',
@@ -25,13 +106,16 @@ function SectionCard({ title, color, children }) {
     teal:     'bg-[#C8E6E2]',
   }
   return (
-    <div className={`rounded-2xl p-5 ${colors[color] ?? 'bg-slate-100'}`}>
+    <GlowCard 
+      color={color} 
+      className={`rounded-2xl p-5 ${colors[color] ?? 'bg-slate-100'}`}
+    >
       <h2 style={{ fontFamily: "'Playfair Display', serif" }}
           className="text-2xl font-semibold text-slate-800 mb-4">
         {title}
       </h2>
       {children}
-    </div>
+    </GlowCard>
   )
 }
 
@@ -49,7 +133,6 @@ function StatRow({ label, value }) {
   )
 }
 
-// Cycles: null → 'Admitted' → 'Waitlisted' → 'Rejected' → null
 const CYCLE = [null, 'Admitted', 'Waitlisted', 'Rejected']
 
 const ICON = {
@@ -169,7 +252,6 @@ export default function ProfileCard({ profile, guesses, onCycle }) {
           <p className="text-xs text-slate-500 mb-1">
             Tap each school to set your prediction.
           </p>
-          {/* Icon legend */}
           <div className="flex gap-3 mb-4">
             {Object.entries(ICON).map(([label, src]) => (
               <div key={label} className="flex items-center gap-1">
