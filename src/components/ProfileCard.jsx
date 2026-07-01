@@ -1,84 +1,5 @@
-import React, { useState, useRef } from 'react'
-
-/**
- * ── Recreated EaseMize UI: GlowCard ──
- * Dynamically tracks mouse positions using CSS custom properties
- * and applies a configurable spot-glow hue over its children.
- * Modified: Inline custom style rule to use a repository image as the cursor.
- */
-function GlowCard({ 
-  children, 
-  className = '', 
-  color = 'teal', 
-  size, 
-  width, 
-  height, 
-  ...props 
-}) {
-  const cardRef = useRef(null)
-  const [coords, setCoords] = useState({ x: 0, y: 0 })
-  const [isHovered, setIsHovered] = useState(false)
-
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return
-    const rect = cardRef.current.getBoundingClientRect()
-    setCoords({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    })
-  }
-
-  // Define rich color presets for the glow effect based on your setup
-  const glowColors = {
-    lavender: '124, 58, 237', // Deep purple glow
-    sage:     '22, 163, 74',   // Emerald green glow
-    cream:    '217, 119, 6',   // Warm amber glow
-    sky:      '2, 132, 199',   // Vibrant sky blue glow
-    teal:     '13, 148, 136',  // Deep teal glow
-  }
-
-  const rgb = glowColors[color] || '148, 163, 184'
-
-  const sizePresets = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-  }
-
-  const customStyle = {
-  '--mouse-x': `${coords.x}px`,
-  '--mouse-y': `${coords.y}px`,
-  '--glow-color': rgb,
-  cursor: "url(/icons/magnifying.png), auto", // Stripped the inner single quotes
-  ...(width && { width }),
-  ...(height && { height }),
-  }
-
-  return (
-    <div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={customStyle}
-      className={`relative overflow-hidden ${size ? sizePresets[size] : ''} ${className}`}
-      {...props}
-    >
-      {/* Dynamic spotlight layer driven by CSS custom properties */}
-      <div
-        className="pointer-events-none absolute inset-0 transition-opacity duration-300 hidden md:block"
-        style={{
-          opacity: isHovered ? 1 : 0,
-          background: `radial-gradient(300px circle at var(--mouse-x) var(--mouse-y), rgba(var(--glow-color), 0.22), transparent 80%)`,
-        }}
-      />
-      {/* Content wrapper ensures text/data renders above the background gradient */}
-      <div className="relative z-10 h-full w-full">
-        {children}
-      </div>
-    </div>
-  )
-}
+import { useState, useRef } from 'react'
+import DragGuess from './DragGuess'
 
 function str(value) {
   if (value === null || value === undefined) return '—'
@@ -96,20 +17,59 @@ function ecToString(ec) {
   return str(ec)
 }
 
-// SectionCard now wraps everything in the custom dynamic GlowCard component
+function GlowCard({ children, className = '', color = 'teal' }) {
+  const cardRef = useRef(null)
+  const [coords, setCoords] = useState({ x: 0, y: 0 })
+  const [isHovered, setIsHovered] = useState(false)
+
+  const glowColors = {
+    lavender: '124, 58, 237',
+    cream:    '217, 119, 6',
+    sky:      '2, 132, 199',
+    teal:     '13, 148, 136',
+  }
+
+  const rgb = glowColors[color] || '148, 163, 184'
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={(e) => {
+        const rect = cardRef.current?.getBoundingClientRect()
+        if (!rect) return
+        setCoords({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        cursor: isHovered ? "url('/icons/magnifying.png') 12 12, zoom-in" : undefined,
+      }}
+      className={`relative overflow-hidden ${className}`}
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300 hidden md:block"
+        style={{
+          opacity: isHovered ? 1 : 0,
+          background: `radial-gradient(300px circle at ${coords.x}px ${coords.y}px, rgba(${rgb}, 0.22), transparent 80%)`,
+        }}
+      />
+      <div className="relative z-10 h-full w-full">
+        {children}
+      </div>
+    </div>
+  )
+}
+
 function SectionCard({ title, color, children }) {
   const colors = {
     lavender: 'bg-[#E8E4F3]',
-    sage:     'bg-[#D6EAD8]',
     cream:    'bg-[#F5EDD6]',
     sky:      'bg-[#D4EAF5]',
     teal:     'bg-[#C8E6E2]',
   }
   return (
-    <GlowCard 
-      color={color} 
-      className={`rounded-2xl p-5 ${colors[color] ?? 'bg-slate-100'}`}
-    >
+    <GlowCard color={color} className={`rounded-2xl p-5 ${colors[color] ?? 'bg-slate-100'}`}>
       <h2 style={{ fontFamily: "'Playfair Display', serif" }}
           className="text-2xl font-semibold text-slate-800 mb-4">
         {title}
@@ -167,7 +127,7 @@ function SchoolGuessRow({ school, guess, onCycle }) {
   )
 }
 
-export default function ProfileCard({ profile, guesses, onCycle }) {
+export default function ProfileCard({ profile, guesses, onCycle, onDrop, guessMode }) {
   const extracurriculars = profile.extracurriculars ?? []
   const awards = profile.awards ?? []
   const schools = profile.schools ?? []
@@ -198,12 +158,12 @@ export default function ProfileCard({ profile, guesses, onCycle }) {
 
         <SectionCard title="Academics" color="lavender">
           <div className="space-y-0.5">
-            {profile.sat       && <StatRow label="SAT"           value={Number(profile.sat).toLocaleString()} />}
-            {profile.act       && <StatRow label="ACT"           value={str(profile.act)} />}
-            <StatRow label="Unweighted GPA" value={str(profile.gpa_unweighted)} />
-            <StatRow label="Weighted GPA"   value={str(profile.gpa_weighted)} />
-            {profile.class_rank && <StatRow label="Class Rank"   value={str(profile.class_rank)} />}
-            <StatRow label="AP Courses"     value={str(profile.ap_ib_count)} />
+            {profile.sat        && <StatRow label="SAT"           value={Number(profile.sat).toLocaleString()} />}
+            {profile.act        && <StatRow label="ACT"           value={str(profile.act)} />}
+            <StatRow label="Unweighted GPA"  value={str(profile.gpa_unweighted)} />
+            <StatRow label="Weighted GPA"    value={str(profile.gpa_weighted)} />
+            {profile.class_rank && <StatRow label="Class Rank"    value={str(profile.class_rank)} />}
+            <StatRow label="AP Courses"      value={str(profile.ap_ib_count)} />
           </div>
         </SectionCard>
 
@@ -244,34 +204,41 @@ export default function ProfileCard({ profile, guesses, onCycle }) {
 
       {/* ── Right column: College List ── */}
       <div className="md:sticky md:top-6">
-        <div className="bg-[#E2E4EA] rounded-2xl p-5">
-          <h2 style={{ fontFamily: "'Playfair Display', serif" }}
-              className="text-2xl font-semibold text-slate-800 mb-1">
-            College List
-          </h2>
-          <p className="text-xs text-slate-500 mb-1">
-            Tap each school to set your prediction.
-          </p>
-          <div className="flex gap-3 mb-4">
-            {Object.entries(ICON).map(([label, src]) => (
-              <div key={label} className="flex items-center gap-1">
-                <img src={src} alt={label} className="w-4 h-4" />
-                <span className="text-xs text-slate-500">{label}</span>
-              </div>
-            ))}
+        {guessMode === 'drag' ? (
+          <DragGuess
+            schools={schools}
+            guesses={guesses}
+            onDrop={onDrop}
+          />
+        ) : (
+          <div className="bg-[#E2E4EA] rounded-2xl p-5">
+            <h2 style={{ fontFamily: "'Playfair Display', serif" }}
+                className="text-2xl font-semibold text-slate-800 mb-1">
+              College List
+            </h2>
+            <p className="text-xs text-slate-500 mb-1">
+              Tap each school to set your prediction.
+            </p>
+            <div className="flex gap-3 mb-4">
+              {Object.entries(ICON).map(([label, src]) => (
+                <div key={label} className="flex items-center gap-1">
+                  <img src={src} alt={label} className="w-4 h-4" />
+                  <span className="text-xs text-slate-500">{label}</span>
+                </div>
+              ))}
+            </div>
+            <div>
+              {schools.map((school) => (
+                <SchoolGuessRow
+                  key={school.id}
+                  school={school}
+                  guess={guesses[school.id] ?? null}
+                  onCycle={onCycle}
+                />
+              ))}
+            </div>
           </div>
-
-          <div>
-            {schools.map((school) => (
-              <SchoolGuessRow
-                key={school.id}
-                school={school}
-                guess={guesses[school.id] ?? null}
-                onCycle={onCycle}
-              />
-            ))}
-          </div>
-        </div>
+        )}
       </div>
 
     </div>
