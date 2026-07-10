@@ -53,7 +53,7 @@ function DroppableColumn({ columnId, label, schools }) {
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 rounded-2xl border-2 p-3 min-h-[140px] transition-all
+      className={`rounded-2xl border-2 p-4 min-h-[108px] transition-all
                   ${style.bg} ${isOver ? 'border-slate-400 scale-[1.01]' : style.border}`}
     >
       <div className="flex items-center gap-2 mb-3">
@@ -61,13 +61,16 @@ function DroppableColumn({ columnId, label, schools }) {
         <span className={`text-xs font-semibold uppercase tracking-wide ${style.text}`}>
           {label}
         </span>
+        <span className={`ml-auto text-xs font-semibold ${style.text} opacity-60`}>
+          {schools.length}
+        </span>
       </div>
-      <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
         {schools.map(s => (
           <DraggableChip key={s.id} id={s.id} name={s.school_name} />
         ))}
         {schools.length === 0 && (
-          <p className="text-xs text-slate-400 text-center pt-4 select-none">Drop here</p>
+          <p className="text-xs text-slate-400 select-none py-2">Drop schools here</p>
         )}
       </div>
     </div>
@@ -79,18 +82,18 @@ function UnplacedTray({ schools }) {
   return (
     <div
       ref={setNodeRef}
-      className={`bg-[#E2E4EA] rounded-2xl p-4 transition-all
+      className={`bg-[#E2E4EA] rounded-2xl p-4 h-full transition-all
                   ${isOver ? 'ring-2 ring-slate-400' : ''}`}
     >
       <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
         Drag each school to your prediction
       </p>
-      <div className="flex flex-wrap gap-2 min-h-[40px]">
+      <div className="flex flex-col gap-2 min-h-[40px]">
         {schools.map(s => (
           <DraggableChip key={s.id} id={s.id} name={s.school_name} />
         ))}
         {schools.length === 0 && (
-          <p className="text-xs text-slate-400 self-center select-none">All schools placed!</p>
+          <p className="text-xs text-slate-400 select-none">All schools placed!</p>
         )}
       </div>
     </div>
@@ -132,9 +135,9 @@ export default function DragGuess({ schools, guesses, onDrop }) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="space-y-3">
+      <div className="grid grid-cols-[200px_1fr] gap-3 items-start">
         <UnplacedTray schools={unplaced} />
-        <div className="grid grid-cols-3 gap-3">
+        <div className="flex flex-col gap-3">
           <DroppableColumn columnId="col-Admitted"   label="Admitted"   schools={admitted}   />
           <DroppableColumn columnId="col-Waitlisted" label="Waitlisted" schools={waitlisted} />
           <DroppableColumn columnId="col-Rejected"   label="Rejected"   schools={rejected}   />

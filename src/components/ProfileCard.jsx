@@ -134,8 +134,9 @@ export default function ProfileCard({ profile, guesses, onCycle, onDrop, guessMo
 
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}
-         className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-4 items-start">
-
+     className={`grid grid-cols-1 gap-4 items-start ${
+       guessMode === 'drag' ? 'md:grid-cols-[1fr_480px]' : 'md:grid-cols-[1fr_280px]'
+     }`}>
       {/* ── Left column ── */}
       <div className="flex flex-col gap-4">
 

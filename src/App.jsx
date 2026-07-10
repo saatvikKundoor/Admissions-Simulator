@@ -8,6 +8,15 @@ import SessionEnd from './components/SessionEnd'
 const CYCLE = [null, 'Admitted', 'Waitlisted', 'Rejected']
 const SESSION_LENGTH = 8
 
+function shuffle(array) {
+  const result = [...array]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
 function scoreGuesses(schools, guesses) {
   let correct = 0
   for (const school of schools) {
@@ -59,7 +68,7 @@ export default function App() {
     if (error) {
       setError(error.message)
     } else {
-      setProfile(data)
+      setProfile({ ...data, schools: shuffle(data.schools ?? []) })
       setSeenIds(prev => [...prev, randomId])
     }
     setLoading(false)
@@ -121,7 +130,7 @@ export default function App() {
   if (!gameStarted) return <LandingPage onStart={() => setGameStarted(true)} />
 
   if (showSessionEnd) return (
-    <div className="min-h-screen bg-[#F2F0EB] px-6 py-16 max-w-5xl mx-auto">
+    <div className="min-h-screen bg-[#F2F0EB] px-6 py-16 max-w-6xl mx-auto">
       <SessionEnd
         correct={sessionCorrect}
         total={sessionTotal}
@@ -151,7 +160,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F2F0EB]">
-      <header className="px-6 pt-10 pb-6 max-w-5xl mx-auto flex items-start justify-between">
+      <header className="px-6 pt-10 pb-6 max-w-6xl mx-auto flex items-start justify-between">
         <div>
           <h1 style={{ fontFamily: "'Playfair Display', serif" }}
               className="text-4xl font-semibold text-slate-900 tracking-tight">
@@ -174,7 +183,7 @@ export default function App() {
         )}
       </header>
 
-      <main className="px-6 pb-16 max-w-5xl mx-auto">
+      <main className="px-6 pb-16 max-w-6xl mx-auto">
         {!submitted ? (
           <>
             <ProfileCard
