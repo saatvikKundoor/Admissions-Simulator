@@ -40,26 +40,57 @@ function scoreGuesses(schools, guesses) {
   return correct
 }
 
+const COUNT_DURATION_MS = 600
+
 export default function RevealScreen({ profile, guesses, onNext }) {
   const schools = profile.schools ?? []
   const [visibleCount, setVisibleCount] = useState(0)
-
-  // Stagger reveal: one school every 400ms
-  useEffect(() => {
-    if (visibleCount >= schools.length) return
-    const timer = setTimeout(() => setVisibleCount(v => v + 1), 400)
-    return () => clearTimeout(timer)
-  }, [visibleCount, schools.length])
+  const [countDisplay, setCountDisplay] = useState(0)
+  const [countDone, setCountDone] = useState(false)
 
   const correct = scoreGuesses(schools, guesses)
   const total   = schools.length
   const pct     = total > 0 ? Math.round((correct / total) * 100) : 0
   const allRevealed = visibleCount >= schools.length
 
+  // Fast count-up: numerator animates 0 → correct over a fixed duration,
+  // regardless of how big the score is. Denominator shows immediately (below).
+  useEffect(() => {
+    if (correct === 0) {
+      setCountDisplay(0)
+      setCountDone(true)
+      return
+    }
+    let raf
+    const start = performance.now()
+    function tick(now) {
+      const elapsed = now - start
+      const progress = Math.min(elapsed / COUNT_DURATION_MS, 1)
+      setCountDisplay(Math.round(progress * correct))
+      if (progress < 1) {
+        raf = requestAnimationFrame(tick)
+      } else {
+        setCountDone(true)
+      }
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Stagger reveal: one school every 400ms, but only starts once the
+  // count-up has finished and the flavor text has appeared.
+  useEffect(() => {
+    if (!countDone) return
+    if (visibleCount >= schools.length) return
+    const timer = setTimeout(() => setVisibleCount(v => v + 1), 200)
+    return () => clearTimeout(timer)
+  }, [countDone, visibleCount, schools.length])
+
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Score header — shown only after all schools reveal */}
-      <div className={`mb-6 transition-opacity duration-500 ${allRevealed ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Score header — visible immediately, count-up then flavor text fade in */}
+      <div className="mb-6">
         <div className="bg-slate-900 rounded-2xl px-6 py-5 text-center">
           <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
              className="text-slate-400 text-xs uppercase tracking-widest mb-1">
@@ -67,9 +98,13 @@ export default function RevealScreen({ profile, guesses, onNext }) {
           </p>
           <p style={{ fontFamily: "'Playfair Display', serif" }}
              className="text-white text-4xl font-semibold mb-1">
-            {correct} / {total}
+            {countDisplay} / {total}
           </p>
-          <p className="text-slate-300 text-sm">{flavorText(pct)}</p>
+          <p className={`text-slate-300 text-sm transition-opacity duration-500 ${
+            countDone ? 'opacity-100' : 'opacity-0'
+          }`}>
+            {flavorText(pct)}
+          </p>
         </div>
       </div>
 
