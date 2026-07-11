@@ -217,7 +217,7 @@ export default function ProfileCard({
 
         <SectionCard title="Academics" color="lavender">
           <div className="space-y-0.5">
-            {profile.sat        && <StatRow label="SAT"           value={Number(profile.sat).toLocaleString()} />}
+            {profile.sat        && <StatRow label="SAT"           value={str(profile.sat)} />}
             {profile.act        && <StatRow label="ACT"           value={str(profile.act)} />}
             <StatRow label="Unweighted GPA"  value={str(profile.gpa_unweighted)} />
             <StatRow label="Weighted GPA"    value={str(profile.gpa_weighted)} />
