@@ -44,7 +44,7 @@ function GlowCard({ children, className = '', color = 'teal' }) {
       style={{
         cursor: isHovered ? "url('/icons/magnifying.png') 12 12, zoom-in" : undefined,
       }}
-      className={`relative overflow-hidden ${className}`}
+      className={`relative overflow-hidden h-full ${className}`}
     >
       <div
         aria-hidden="true"
@@ -61,7 +61,7 @@ function GlowCard({ children, className = '', color = 'teal' }) {
   )
 }
 
-function SectionCard({ title, color, children }) {
+function SectionCard({ title, color, children, className = '' }) {
   const colors = {
     lavender: 'bg-[#E8E4F3]',
     cream:    'bg-[#F5EDD6]',
@@ -69,9 +69,12 @@ function SectionCard({ title, color, children }) {
     teal:     'bg-[#C8E6E2]',
   }
   return (
-    <GlowCard color={color} className={`rounded-2xl p-5 ${colors[color] ?? 'bg-slate-100'}`}>
+    <GlowCard
+      color={color}
+      className={`rounded-2xl p-5 ${colors[color] ?? 'bg-slate-100'} ${className}`}
+    >
       <h2 style={{ fontFamily: "'Playfair Display', serif" }}
-          className="text-2xl font-semibold text-slate-800 mb-4">
+          className="text-xl font-semibold text-slate-800 mb-4">
         {title}
       </h2>
       {children}
@@ -90,6 +93,23 @@ function StatRow({ label, value }) {
         {value}
       </span>
     </div>
+  )
+}
+
+function ECItem({ ec, index }) {
+  return (
+    <li className="flex gap-3 text-sm text-slate-700 leading-snug">
+      <span style={{ fontFamily: "'JetBrains Mono', monospace" }}
+            className="text-xs text-slate-400 mt-0.5 w-4 shrink-0 text-right">
+        {index + 1}.
+      </span>
+      <span>
+        {typeof ec === 'object' && ec.title
+          ? <><strong className="font-semibold text-slate-800">{ec.title}:</strong> {ec.description}</>
+          : ecToString(ec)
+        }
+      </span>
+    </li>
   )
 }
 
@@ -127,21 +147,59 @@ function SchoolGuessRow({ school, guess, onCycle }) {
   )
 }
 
-export default function ProfileCard({ profile, guesses, onCycle, onDrop, guessMode }) {
+function SubmitRow({ anyGuessed, guessMode, onSubmit }) {
+  return (
+    <div className="flex items-center justify-end gap-4">
+      {!anyGuessed && (
+        <p style={{ fontFamily: "'Inter', sans-serif" }}
+           className="text-sm text-slate-400 text-right">
+          {guessMode === 'cycle'
+            ? 'Tap schools above to make predictions'
+            : 'Drag schools into a column'}
+        </p>
+      )}
+      <button
+        onClick={onSubmit}
+        disabled={!anyGuessed}
+        style={{ fontFamily: "'Inter', sans-serif" }}
+        className="px-8 py-3 rounded-xl font-semibold text-sm tracking-wide transition-colors
+                   bg-slate-900 text-white hover:bg-slate-700
+                   disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed shrink-0"
+      >
+        Submit Guesses
+      </button>
+    </div>
+  )
+}
+
+export default function ProfileCard({
+  profile,
+  guesses,
+  onCycle,
+  onDrop,
+  guessMode,
+  anyGuessed,
+  onSubmit,
+}) {
   const extracurriculars = profile.extracurriculars ?? []
   const awards = profile.awards ?? []
   const schools = profile.schools ?? []
 
+  // Split so the left column gets items 1..half and the right column gets half+1..end,
+  // instead of interleaving (1 left, 2 right, 3 left...).
+  const ecHalf = Math.ceil(extracurriculars.length / 2)
+  const ecLeft  = extracurriculars.slice(0, ecHalf)
+  const ecRight = extracurriculars.slice(ecHalf)
+
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}
-     className={`grid grid-cols-1 gap-4 items-start ${
-       guessMode === 'drag' ? 'md:grid-cols-[1fr_480px]' : 'md:grid-cols-[1fr_280px]'
-     }`}>
-      {/* ── Left column ── */}
-      <div className="flex flex-col gap-4">
+         className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6 items-start">
+
+      {/* ── Left side: admissions-file style grid ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
         <SectionCard title="Demographics" color="teal">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2">
             {[
               ['State',     str(profile.state)],
               ['Gender',    str(profile.gender)],
@@ -169,29 +227,27 @@ export default function ProfileCard({ profile, guesses, onCycle, onDrop, guessMo
         </SectionCard>
 
         {extracurriculars.length > 0 && (
-          <SectionCard title="Extracurriculars" color="sky">
-            <ol className="space-y-2 list-none">
-              {extracurriculars.map((ec, i) => (
-                <li key={i} className="flex gap-3 text-sm text-slate-700 leading-snug">
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                        className="text-xs text-slate-400 mt-0.5 w-4 shrink-0 text-right">
-                    {i + 1}.
-                  </span>
-                  <span>
-                    {typeof ec === 'object' && ec.title
-                      ? <><strong className="font-semibold text-slate-800">{ec.title}:</strong> {ec.description}</>
-                      : ecToString(ec)
-                    }
-                  </span>
-                </li>
-              ))}
-            </ol>
+          <SectionCard title="Extracurriculars" color="sky" className="sm:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+              <ol className="space-y-2 list-none">
+                {ecLeft.map((ec, i) => (
+                  <ECItem key={i} ec={ec} index={i} />
+                ))}
+              </ol>
+              {ecRight.length > 0 && (
+                <ol className="space-y-2 list-none">
+                  {ecRight.map((ec, i) => (
+                    <ECItem key={i + ecHalf} ec={ec} index={i + ecHalf} />
+                  ))}
+                </ol>
+              )}
+            </div>
           </SectionCard>
         )}
 
         {awards.length > 0 && (
-          <SectionCard title="Awards" color="cream">
-            <ul className="space-y-2">
+          <SectionCard title="Awards" color="cream" className="sm:col-span-2">
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
               {awards.map((award, i) => (
                 <li key={i} className="flex gap-3 text-sm text-slate-700 leading-snug">
                   <span className="text-slate-400 mt-0.5">•</span>
@@ -203,42 +259,50 @@ export default function ProfileCard({ profile, guesses, onCycle, onDrop, guessMo
         )}
       </div>
 
-      {/* ── Right column: College List ── */}
-      <div className="md:sticky md:top-6">
+      {/* ── Right column: College List + Submit ── */}
+      <div className="lg:sticky lg:top-6">
         {guessMode === 'drag' ? (
           <DragGuess
             schools={schools}
             guesses={guesses}
             onDrop={onDrop}
+            footer={
+              <SubmitRow anyGuessed={anyGuessed} guessMode={guessMode} onSubmit={onSubmit} />
+            }
           />
         ) : (
-          <div className="bg-[#E2E4EA] rounded-2xl p-5">
-            <h2 style={{ fontFamily: "'Playfair Display', serif" }}
-                className="text-2xl font-semibold text-slate-800 mb-1">
-              College List
-            </h2>
-            <p className="text-xs text-slate-500 mb-1">
-              Tap each school to set your prediction.
-            </p>
-            <div className="flex gap-3 mb-4">
-              {Object.entries(ICON).map(([label, src]) => (
-                <div key={label} className="flex items-center gap-1">
-                  <img src={src} alt={label} className="w-4 h-4" />
-                  <span className="text-xs text-slate-500">{label}</span>
-                </div>
-              ))}
+          <>
+            <div className="bg-[#E2E4EA] rounded-2xl p-6">
+              <h2 style={{ fontFamily: "'Playfair Display', serif" }}
+                  className="text-2xl font-semibold text-slate-800 mb-1">
+                College List
+              </h2>
+              <p className="text-xs text-slate-500 mb-1">
+                Tap each school to set your prediction.
+              </p>
+              <div className="flex gap-3 mb-4">
+                {Object.entries(ICON).map(([label, src]) => (
+                  <div key={label} className="flex items-center gap-1">
+                    <img src={src} alt={label} className="w-4 h-4" />
+                    <span className="text-xs text-slate-500">{label}</span>
+                  </div>
+                ))}
+              </div>
+              <div>
+                {schools.map((school) => (
+                  <SchoolGuessRow
+                    key={school.id}
+                    school={school}
+                    guess={guesses[school.id] ?? null}
+                    onCycle={onCycle}
+                  />
+                ))}
+              </div>
             </div>
-            <div>
-              {schools.map((school) => (
-                <SchoolGuessRow
-                  key={school.id}
-                  school={school}
-                  guess={guesses[school.id] ?? null}
-                  onCycle={onCycle}
-                />
-              ))}
+            <div className="mt-6">
+              <SubmitRow anyGuessed={anyGuessed} guessMode={guessMode} onSubmit={onSubmit} />
             </div>
-          </div>
+          </>
         )}
       </div>
 

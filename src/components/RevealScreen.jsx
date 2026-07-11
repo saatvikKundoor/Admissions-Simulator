@@ -40,10 +40,23 @@ function scoreGuesses(schools, guesses) {
   return correct
 }
 
+// Reveal order is by actual outcome — Admitted first, then Waitlisted, then
+// Rejected, then anything else (e.g. Deferred) — regardless of what the
+// player guessed or what order the schools came back from Supabase.
+const OUTCOME_ORDER = { Admitted: 0, Waitlisted: 1, Rejected: 2, Deferred: 3 }
+
+function sortByOutcome(schools) {
+  return [...schools].sort((a, b) => {
+    const orderA = OUTCOME_ORDER[a.outcome] ?? 99
+    const orderB = OUTCOME_ORDER[b.outcome] ?? 99
+    return orderA - orderB
+  })
+}
+
 const COUNT_DURATION_MS = 600
 
 export default function RevealScreen({ profile, guesses, onNext }) {
-  const schools = profile.schools ?? []
+  const schools = sortByOutcome(profile.schools ?? [])
   const [visibleCount, setVisibleCount] = useState(0)
   const [countDisplay, setCountDisplay] = useState(0)
   const [countDone, setCountDone] = useState(false)

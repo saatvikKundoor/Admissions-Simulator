@@ -100,7 +100,7 @@ function UnplacedTray({ schools }) {
   )
 }
 
-export default function DragGuess({ schools, guesses, onDrop }) {
+export default function DragGuess({ schools, guesses, onDrop, footer }) {
   const [activeSchool, setActiveSchool] = useState(null)
 
   const sensors = useSensors(
@@ -141,6 +141,7 @@ export default function DragGuess({ schools, guesses, onDrop }) {
           <DroppableColumn columnId="col-Admitted"   label="Admitted"   schools={admitted}   />
           <DroppableColumn columnId="col-Waitlisted" label="Waitlisted" schools={waitlisted} />
           <DroppableColumn columnId="col-Rejected"   label="Rejected"   schools={rejected}   />
+          {footer}
         </div>
       </div>
 

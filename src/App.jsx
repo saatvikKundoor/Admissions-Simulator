@@ -8,15 +8,6 @@ import SessionEnd from './components/SessionEnd'
 const CYCLE = [null, 'Admitted', 'Waitlisted', 'Rejected']
 const SESSION_LENGTH = 8
 
-function shuffle(array) {
-  const result = [...array]
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[result[i], result[j]] = [result[j], result[i]]
-  }
-  return result
-}
-
 function scoreGuesses(schools, guesses) {
   let correct = 0
   for (const school of schools) {
@@ -68,7 +59,7 @@ export default function App() {
     if (error) {
       setError(error.message)
     } else {
-      setProfile({ ...data, schools: shuffle(data.schools ?? []) })
+      setProfile(data)
       setSeenIds(prev => [...prev, randomId])
     }
     setLoading(false)
@@ -130,7 +121,7 @@ export default function App() {
   if (!gameStarted) return <LandingPage onStart={() => setGameStarted(true)} />
 
   if (showSessionEnd) return (
-    <div className="min-h-screen bg-[#F2F0EB] px-6 py-16 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-[#F2F0EB] px-6 md:px-10 lg:px-16 py-16">
       <SessionEnd
         correct={sessionCorrect}
         total={sessionTotal}
@@ -160,7 +151,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F2F0EB]">
-      <header className="px-6 pt-10 pb-6 max-w-6xl mx-auto flex items-start justify-between">
+      <header className="px-6 md:px-10 lg:px-16 pt-10 pb-6 flex items-start justify-between">
         <div>
           <h1 style={{ fontFamily: "'Playfair Display', serif" }}
               className="text-4xl font-semibold text-slate-900 tracking-tight">
@@ -183,37 +174,17 @@ export default function App() {
         )}
       </header>
 
-      <main className="px-6 pb-16 max-w-6xl mx-auto">
+      <main className="px-6 md:px-10 lg:px-16 pb-16">
         {!submitted ? (
-          <>
-            <ProfileCard
-              profile={profile}
-              guesses={guesses}
-              onCycle={handleCycle}
-              onDrop={handleDrop}
-              guessMode={guessMode}
-            />
-            <div className="mt-6 flex items-center justify-end gap-4">
-              {!anyGuessed && (
-                <p style={{ fontFamily: "'Inter', sans-serif" }}
-                   className="text-sm text-slate-400">
-                  {guessMode === 'cycle'
-                    ? 'Tap schools on the right to make predictions'
-                    : 'Drag schools into a column'}
-                </p>
-              )}
-              <button
-                onClick={handleSubmit}
-                disabled={!anyGuessed}
-                style={{ fontFamily: "'Inter', sans-serif" }}
-                className="px-8 py-3 rounded-xl font-semibold text-sm tracking-wide transition-colors
-                           bg-slate-900 text-white hover:bg-slate-700
-                           disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed"
-              >
-                Submit Guesses
-              </button>
-            </div>
-          </>
+          <ProfileCard
+            profile={profile}
+            guesses={guesses}
+            onCycle={handleCycle}
+            onDrop={handleDrop}
+            guessMode={guessMode}
+            anyGuessed={anyGuessed}
+            onSubmit={handleSubmit}
+          />
         ) : (
           <RevealScreen
             profile={profile}
