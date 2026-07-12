@@ -206,6 +206,7 @@ export default function ProfileCard({
               ['Ethnicity', str(profile.race_ethnicity)],
               ['First-Gen', profile.first_gen ? 'Yes' : 'No'],
               ['Residency', profile.international ? 'International' : 'Domestic'],
+              ['Intended Major', str(profile.major_intended)],
             ].map(([label, value]) => (
               <div key={label}>
                 <p className="text-xs text-slate-500 uppercase tracking-wide mb-0.5">{label}</p>
