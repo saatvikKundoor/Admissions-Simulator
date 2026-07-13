@@ -7,12 +7,17 @@ function str(value) {
   return String(value)
 }
 
+function capitalize(value) {
+  if (typeof value !== 'string' || value.length === 0) return value
+  return value.charAt(0).toUpperCase() + value.slice(1)
+}
+
 function ecToString(ec) {
-  if (typeof ec === 'string') return ec
+  if (typeof ec === 'string') return capitalize(ec)
   if (ec && typeof ec === 'object') {
-    if (ec.title && ec.description) return `${ec.title} — ${ec.description}`
-    if (ec.title) return ec.title
-    if (ec.description) return ec.description
+    if (ec.title && ec.description) return `${capitalize(ec.title)} — ${capitalize(ec.description)}`
+    if (ec.title) return capitalize(ec.title)
+    if (ec.description) return capitalize(ec.description)
   }
   return str(ec)
 }
@@ -105,7 +110,9 @@ function ECItem({ ec, index }) {
       </span>
       <span>
         {typeof ec === 'object' && ec.title
-          ? <><strong className="font-semibold text-slate-800">{ec.title}:</strong> {ec.description}</>
+          ? (ec.description
+              ? <><strong className="font-semibold text-slate-800">{capitalize(ec.title)}:</strong> {capitalize(ec.description)}</>
+              : <strong className="font-semibold text-slate-800">{capitalize(ec.title)}</strong>)
           : ecToString(ec)
         }
       </span>
@@ -252,7 +259,7 @@ export default function ProfileCard({
               {awards.map((award, i) => (
                 <li key={i} className="flex gap-3 text-sm text-slate-700 leading-snug">
                   <span className="text-slate-400 mt-0.5">•</span>
-                  <span>{str(award)}</span>
+                  <span>{capitalize(str(award))}</span>
                 </li>
               ))}
             </ul>
