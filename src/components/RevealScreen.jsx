@@ -55,7 +55,7 @@ function sortByOutcome(schools) {
 
 const COUNT_DURATION_MS = 600
 
-export default function RevealScreen({ profile, guesses, onNext }) {
+export default function RevealScreen({ profile, guesses, onNext, onEndSession }) {
   const schools = sortByOutcome(profile.schools ?? [])
   const [visibleCount, setVisibleCount] = useState(0)
   const [countDisplay, setCountDisplay] = useState(0)
@@ -184,8 +184,18 @@ export default function RevealScreen({ profile, guesses, onNext }) {
         </div>
       </div>
 
-      {/* Next button — appears after all revealed */}
-      <div className={`flex justify-end transition-opacity duration-500 ${allRevealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      {/* Next Applicant (primary) + End Session (secondary) — appear after all revealed.
+          End Session sits to the left as a lower-emphasis outlined button so the
+          forward action (Next Applicant) stays the dominant, rightmost choice. */}
+      <div className={`flex justify-end items-center gap-3 transition-opacity duration-500 ${allRevealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <button
+          onClick={onEndSession}
+          style={{ fontFamily: "'Inter', sans-serif" }}
+          className="px-6 py-3 rounded-xl font-semibold text-sm tracking-wide transition-colors
+                     border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+        >
+          End Session
+        </button>
         <button
           onClick={onNext}
           style={{ fontFamily: "'Inter', sans-serif" }}

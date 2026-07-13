@@ -116,6 +116,17 @@ export default function App() {
     }
   }
 
+  // Lets the player end the session early from the reveal screen — the current
+  // round's score still counts, but instead of loading another profile we jump
+  // straight to the session summary.
+  function handleEndSession() {
+    const round = scoreGuesses(profile.schools, guesses)
+    setSessionCorrect(c => c + round)
+    setSessionTotal(t => t + profile.schools.length)
+    setSessionCount(c => c + 1)
+    setShowSessionEnd(true)
+  }
+
   function handlePlayAgain() {
     setSessionCorrect(0)
     setSessionTotal(0)
@@ -130,7 +141,7 @@ export default function App() {
   if (!gameStarted) return <LandingPage onStart={() => setGameStarted(true)} />
 
   if (showSessionEnd) return (
-    <div className="min-h-screen bg-[#F2F0EB] px-6 md:px-10 lg:px-16 py-16">
+    <div className="min-h-screen bg-[#F2F0EB] flex items-center justify-center px-6 md:px-10 lg:px-16 py-16">
       <SessionEnd
         correct={sessionCorrect}
         total={sessionTotal}
@@ -199,6 +210,7 @@ export default function App() {
             profile={profile}
             guesses={guesses}
             onNext={handleNext}
+            onEndSession={handleEndSession}
           />
         )}
       </main>
