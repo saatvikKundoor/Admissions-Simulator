@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import DragGuess from './DragGuess'
+import { playStamp } from '../lib/sound'
 
 function str(value) {
   if (value === null || value === undefined) return '—'
@@ -135,10 +136,18 @@ const ROW_BG = {
 }
 
 function SchoolGuessRow({ school, guess, onCycle }) {
+  const [stampTick, setStampTick] = useState(0)
   const bg = guess ? ROW_BG[guess] : 'hover:bg-black/5'
+
+  function handleClick() {
+    onCycle(school.id)
+    setStampTick(t => t + 1)
+    playStamp()
+  }
+
   return (
     <button
-      onClick={() => onCycle(school.id)}
+      onClick={handleClick}
       className={`w-full flex items-center justify-between py-2.5 px-1
                   border-b border-black/10 last:border-0 transition-colors
                   text-left cursor-pointer rounded-lg ${bg}`}
@@ -147,7 +156,12 @@ function SchoolGuessRow({ school, guess, onCycle }) {
         {str(school.school_name)}
       </span>
       {guess
-        ? <img src={ICON[guess]} alt={guess} className="w-8 h-8 shrink-0" />
+        ? <img
+            key={stampTick}
+            src={ICON[guess]}
+            alt={guess}
+            className="w-8 h-8 shrink-0 animate-[stamp-down_0.35s_ease-out]"
+          />
         : <div className="w-8 h-8 shrink-0 rounded-lg border-2 border-dashed border-slate-300" />
       }
     </button>

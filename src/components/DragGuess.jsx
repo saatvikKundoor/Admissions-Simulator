@@ -10,7 +10,7 @@ import {
   useDroppable,
   useDraggable,
 } from '@dnd-kit/core'
-import { CSS } from '@dnd-kit/utilities'
+import { playPickup, playStamp } from '../lib/sound'
 
 const COLUMNS = ['Admitted', 'Waitlisted', 'Rejected']
 
@@ -20,28 +20,32 @@ const COLUMN_STYLE = {
   Rejected:   { bg: 'bg-red-50',    border: 'border-red-200',    text: 'text-red-700',    icon: '/icons/rejected.png'   },
 }
 
-function DraggableChip({ id, name, isDragging }) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({ id })
+function DraggableChip({ id, name }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id })
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Translate.toString(transform) }}
       {...listeners}
       {...attributes}
       className={`px-3 py-2 bg-white rounded-lg border border-slate-200 text-sm
                   text-slate-800 font-medium shadow-sm select-none touch-none
-                  cursor-grab active:cursor-grabbing transition-opacity
-                  ${isDragging ? 'opacity-40' : 'opacity-100'}`}
+                  cursor-grab active:cursor-grabbing transition-all duration-150
+                  ${isDragging
+                    ? 'opacity-0'
+                    : 'opacity-100 hover:scale-[1.03] hover:-rotate-1 hover:shadow-md'}`}
     >
       {name}
     </div>
   )
 }
 
+// The chip that follows the pointer while actively dragging — scaled up,
+// tilted, and shadowed so it visually "lifts" off the page, like picking up
+// a slip of paper.
 function StaticChip({ name }) {
   return (
     <div className="px-3 py-2 bg-white rounded-lg border border-slate-300 text-sm
-                    text-slate-800 font-medium shadow-lg select-none rotate-2">
+                    text-slate-800 font-medium shadow-xl select-none scale-110 -rotate-3">
       {name}
     </div>
   )
@@ -115,6 +119,7 @@ export default function DragGuess({ schools, guesses, onDrop, footer }) {
 
   function handleDragStart({ active }) {
     setActiveSchool(schools.find(s => s.id === active.id) ?? null)
+    playPickup()
   }
 
   function handleDragEnd({ active, over }) {
@@ -124,7 +129,10 @@ export default function DragGuess({ schools, guesses, onDrop, footer }) {
       onDrop(active.id, null)
     } else {
       const column = String(over.id).replace('col-', '')
-      if (COLUMNS.includes(column)) onDrop(active.id, column)
+      if (COLUMNS.includes(column)) {
+        onDrop(active.id, column)
+        playStamp()
+      }
     }
   }
 

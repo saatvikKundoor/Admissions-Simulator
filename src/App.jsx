@@ -4,6 +4,7 @@ import LandingPage from './components/LandingPage'
 import ProfileCard from './components/ProfileCard'
 import RevealScreen from './components/RevealScreen'
 import SessionEnd from './components/SessionEnd'
+import { isSoundEnabled, setSoundEnabled } from './lib/sound'
 
 const CYCLE = [null, 'Admitted', 'Waitlisted', 'Rejected']
 const SESSION_LENGTH = 8
@@ -36,6 +37,7 @@ export default function App() {
   const [guessMode, setGuessMode]         = useState(
     () => localStorage.getItem('guessMode') ?? 'cycle'
   )
+  const [soundOn, setSoundOn]             = useState(() => isSoundEnabled())
   const [sessionCorrect, setSessionCorrect] = useState(0)
   const [sessionTotal, setSessionTotal]     = useState(0)
   const [sessionCount, setSessionCount]     = useState(0)
@@ -95,6 +97,14 @@ export default function App() {
     setGuessMode(prev => {
       const next = prev === 'cycle' ? 'drag' : 'cycle'
       localStorage.setItem('guessMode', next)
+      return next
+    })
+  }
+
+  function toggleSound() {
+    setSoundOn(prev => {
+      const next = !prev
+      setSoundEnabled(next)
       return next
     })
   }
@@ -183,14 +193,24 @@ export default function App() {
           </p>
         </div>
         {!submitted && (
-          <button
-            onClick={toggleMode}
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-            className="mt-2 px-3 py-1.5 rounded-lg border border-slate-300 bg-white
-                       text-xs text-slate-600 hover:bg-slate-50 transition-colors shrink-0"
-          >
-            {guessMode === 'cycle' ? '⇄ Drag mode' : '☑ Tap mode'}
-          </button>
+          <div className="flex items-center gap-2 mt-2 shrink-0">
+            <button
+              onClick={toggleSound}
+              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white
+                         text-xs text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              {soundOn ? '🔊 Sound on' : '🔇 Sound off'}
+            </button>
+            <button
+              onClick={toggleMode}
+              style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white
+                         text-xs text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              {guessMode === 'cycle' ? '⇄ Drag mode' : '☑ Tap mode'}
+            </button>
+          </div>
         )}
       </header>
 
