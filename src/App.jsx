@@ -38,6 +38,8 @@ export default function App() {
     () => localStorage.getItem('guessMode') ?? 'cycle'
   )
   const [soundOn, setSoundOn]             = useState(() => isSoundEnabled())
+  const [profileStartTime, setProfileStartTime] = useState(null)
+  const [roundElapsedMs, setRoundElapsedMs]     = useState(0)
   const [sessionCorrect, setSessionCorrect] = useState(0)
   const [sessionTotal, setSessionTotal]     = useState(0)
   const [sessionCount, setSessionCount]     = useState(0)
@@ -72,6 +74,7 @@ export default function App() {
       } else {
         setProfile({ ...data, schools: shuffleArray(data.schools) })
         setSeenIds(prev => [...prev, randomId])
+        setProfileStartTime(Date.now())
       }
     setLoading(false)
   }, [])
@@ -110,6 +113,7 @@ export default function App() {
   }
 
   function handleSubmit() {
+    if (profileStartTime) setRoundElapsedMs(Date.now() - profileStartTime)
     setSubmitted(true)
   }
 
@@ -231,6 +235,7 @@ export default function App() {
             guesses={guesses}
             onNext={handleNext}
             onEndSession={handleEndSession}
+            elapsedMs={roundElapsedMs}
           />
         )}
       </main>

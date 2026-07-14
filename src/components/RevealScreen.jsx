@@ -2,6 +2,7 @@
 // Shows actual outcomes vs player guesses, animated stagger, score + flavor text
 
 import { useEffect, useState } from 'react'
+import { playReveal } from '../lib/sound'
 
 const OUTCOME_STYLE = {
   Admitted:   { bg: 'bg-green-100',  border: 'border-green-300',  text: 'text-green-800'  },
@@ -53,9 +54,20 @@ function sortByOutcome(schools) {
   })
 }
 
+// Small, non-judgmental "time to decide" stat — no comparison, no score
+// framing, just a fact about the round.
+function formatDuration(ms) {
+  if (!ms || ms < 0) return null
+  const totalSeconds = Math.round(ms / 1000)
+  if (totalSeconds < 60) return `${totalSeconds}s`
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}m ${seconds}s`
+}
+
 const COUNT_DURATION_MS = 600
 
-export default function RevealScreen({ profile, guesses, onNext, onEndSession }) {
+export default function RevealScreen({ profile, guesses, onNext, onEndSession, elapsedMs }) {
   const schools = sortByOutcome(profile.schools ?? [])
   const [visibleCount, setVisibleCount] = useState(0)
   const [countDisplay, setCountDisplay] = useState(0)
@@ -92,11 +104,16 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession })
   }, [])
 
   // Stagger reveal: one school every 400ms, but only starts once the
-  // count-up has finished and the flavor text has appeared.
+  // count-up has finished and the flavor text has appeared. Each reveal
+  // gets a light flip/pop so the pacing feels tactile without stacking up
+  // heavy thuds across a run of reveals.
   useEffect(() => {
     if (!countDone) return
     if (visibleCount >= schools.length) return
-    const timer = setTimeout(() => setVisibleCount(v => v + 1), 200)
+    const timer = setTimeout(() => {
+      setVisibleCount(v => v + 1)
+      playReveal()
+    }, 200)
     return () => clearTimeout(timer)
   }, [countDone, visibleCount, schools.length])
 
@@ -118,6 +135,14 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession })
           }`}>
             {flavorText(pct)}
           </p>
+          {formatDuration(elapsedMs) && (
+            <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
+               className={`text-slate-500 text-xs mt-2 transition-opacity duration-500 ${
+                 countDone ? 'opacity-100' : 'opacity-0'
+               }`}>
+              {formatDuration(elapsedMs)} to decide
+            </p>
+          )}
         </div>
       </div>
 
@@ -164,7 +189,8 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession })
 
                     {/* Correct/wrong indicator */}
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
-                      ${isCorrect ? 'bg-green-500 text-white' : 'bg-red-400 text-white'}`}>
+                      ${isCorrect ? 'bg-green-500 text-white' : 'bg-red-400 text-white'}
+                      ${visible ? 'animate-[stamp-down_0.35s_ease-out]' : ''}`}>
                       {isCorrect ? '✓' : '✗'}
                     </div>
 
@@ -172,7 +198,11 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession })
                     <div className="flex flex-col items-center">
                       <span className="text-xs text-slate-400 mb-0.5">Actual</span>
                       {ICON[actual]
-                        ? <img src={ICON[actual]} alt={actual} className="w-7 h-7" />
+                        ? <img
+                            src={ICON[actual]}
+                            alt={actual}
+                            className={`w-7 h-7 ${visible ? 'animate-[stamp-down_0.35s_ease-out]' : ''}`}
+                          />
                         : <span className={`text-xs font-semibold ${style.text}`}>{actual}</span>
                       }
                     </div>

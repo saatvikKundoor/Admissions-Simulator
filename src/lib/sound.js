@@ -1,11 +1,14 @@
 // sound.js
 // Tiny, dependency-free sound effects synthesized with the Web Audio API.
 // No audio files to fetch or ship — everything here is generated at
-// playback time. Two effects:
+// playback time. Three effects:
 //   - playStamp()  — a percussive "thud" for a prediction/decision moment
 //   - playPickup() — a soft paper "whoosh" for picking up a drag chip
+//   - playReveal() — a brief, bright "flip/pop" for each reveal-screen row —
+//                    deliberately lighter and thinner than playStamp() so a
+//                    fast run of reveals doesn't feel like repeated thuds
 //
-// Both effects check the shared, localStorage-backed mute setting internally,
+// All effects check the shared, localStorage-backed mute setting internally,
 // so any component can call them directly without re-checking first.
 
 const STORAGE_KEY = 'soundEnabled'
@@ -97,4 +100,56 @@ export function playPickup() {
   filter.connect(gain)
   gain.connect(audioCtx.destination)
   noise.start(now)
+}
+
+// A card-flip sound — a short burst of noise swept from high to low frequency
+// (the rustle of the card turning through the air), followed by a bright
+// snap right as it settles (the card landing flat). Distinct from the deep
+// stamp thud so a run of reveals feels like cards turning, not repeated hits.
+export function playReveal() {
+  if (!isSoundEnabled()) return
+  const audioCtx = getContext()
+  if (!audioCtx) return
+  const now = audioCtx.currentTime
+
+  // Layer 1 — the flip: filtered noise swept from high to low frequency,
+  // like a card rotating through the air
+  const flipDuration = 0.09
+  const bufferSize = Math.floor(audioCtx.sampleRate * flipDuration)
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = Math.random() * 2 - 1
+  }
+  const noise = audioCtx.createBufferSource()
+  noise.buffer = buffer
+
+  const filter = audioCtx.createBiquadFilter()
+  filter.type = 'bandpass'
+  filter.frequency.setValueAtTime(3200, now)
+  filter.frequency.exponentialRampToValueAtTime(900, now + flipDuration)
+  filter.Q.value = 1.1
+
+  const gain = audioCtx.createGain()
+  gain.gain.setValueAtTime(0.001, now)
+  gain.gain.linearRampToValueAtTime(0.22, now + 0.015)
+  gain.gain.exponentialRampToValueAtTime(0.001, now + flipDuration)
+
+  noise.connect(filter)
+  filter.connect(gain)
+  gain.connect(audioCtx.destination)
+  noise.start(now)
+
+  // Layer 2 — the landing: a short, bright snap right as the flip settles
+  const snapStart = now + flipDuration - 0.01
+  const snap = audioCtx.createOscillator()
+  const snapGain = audioCtx.createGain()
+  snap.type = 'triangle'
+  snap.frequency.setValueAtTime(1800, snapStart)
+  snapGain.gain.setValueAtTime(0.12, snapStart)
+  snapGain.gain.exponentialRampToValueAtTime(0.001, snapStart + 0.03)
+  snap.connect(snapGain)
+  snapGain.connect(audioCtx.destination)
+  snap.start(snapStart)
+  snap.stop(snapStart + 0.03)
 }
