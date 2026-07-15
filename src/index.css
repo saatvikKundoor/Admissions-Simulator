@@ -9,3 +9,19 @@
   75%  { transform: scale(1.08) rotate(-1deg); }
   100% { transform: scale(1) rotate(0deg);     opacity: 1; }
 }
+
+/* A single falling, tumbling scrap of "paper" for the high-score celebration —
+   like confetti tossed from an acceptance letter rather than generic confetti. */
+@keyframes confetti-fall {
+  0%   { transform: translateY(-24px) rotate(0deg);   opacity: 1; }
+  100% { transform: translateY(600px) rotate(560deg); opacity: 0; }
+}
+
+/* Tailwind Animation Utilities */
+.animate-stamp {
+  animation: stamp-down 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-confetti {
+  animation: confetti-fall 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}

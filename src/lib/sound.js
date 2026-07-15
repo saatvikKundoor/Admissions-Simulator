@@ -1,12 +1,12 @@
 // sound.js
 // Tiny, dependency-free sound effects synthesized with the Web Audio API.
 // No audio files to fetch or ship — everything here is generated at
-// playback time. Three effects:
-//   - playStamp()  — a percussive "thud" for a prediction/decision moment
-//   - playPickup() — a soft paper "whoosh" for picking up a drag chip
-//   - playReveal() — a brief, bright "flip/pop" for each reveal-screen row —
-//                    deliberately lighter and thinner than playStamp() so a
-//                    fast run of reveals doesn't feel like repeated thuds
+// playback time. Five effects:
+//   - playStamp()       — a percussive "thud" for a prediction/decision moment
+//   - playPickup()      — a soft paper "whoosh" for picking up a drag chip
+//   - playReveal()       — a card-flip flourish for each reveal-screen row
+//   - playCelebration() — a bright ascending chime when a high session score lands
+//   - playConsolation() — a soft, muted thud when a low session score lands
 //
 // All effects check the shared, localStorage-backed mute setting internally,
 // so any component can call them directly without re-checking first.
@@ -152,4 +152,50 @@ export function playReveal() {
   snapGain.connect(audioCtx.destination)
   snap.start(snapStart)
   snap.stop(snapStart + 0.03)
+}
+
+// A bright, three-note ascending chime — the celebratory flourish when a
+// high session score lands.
+export function playCelebration() {
+  if (!isSoundEnabled()) return
+  const audioCtx = getContext()
+  if (!audioCtx) return
+  const now = audioCtx.currentTime
+  const notes = [523.25, 659.25, 783.99] // C5, E5, G5
+
+  notes.forEach((freq, i) => {
+    const start = now + i * 0.09
+    const osc = audioCtx.createOscillator()
+    const gain = audioCtx.createGain()
+    osc.type = 'triangle'
+    osc.frequency.setValueAtTime(freq, start)
+    gain.gain.setValueAtTime(0.001, start)
+    gain.gain.linearRampToValueAtTime(0.18, start + 0.02)
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.3)
+    osc.connect(gain)
+    gain.connect(audioCtx.destination)
+    osc.start(start)
+    osc.stop(start + 0.3)
+  })
+}
+
+// A soft, muted thud — a gentler, lower-key sibling to playStamp(), used as
+// a subdued acknowledgment when a low session score lands.
+export function playConsolation() {
+  if (!isSoundEnabled()) return
+  const audioCtx = getContext()
+  if (!audioCtx) return
+  const now = audioCtx.currentTime
+
+  const osc = audioCtx.createOscillator()
+  const gain = audioCtx.createGain()
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(140, now)
+  osc.frequency.exponentialRampToValueAtTime(45, now + 0.22)
+  gain.gain.setValueAtTime(0.16, now)
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26)
+  osc.connect(gain)
+  gain.connect(audioCtx.destination)
+  osc.start(now)
+  osc.stop(now + 0.27)
 }
