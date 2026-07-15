@@ -40,3 +40,10 @@
   background-repeat: repeat;
   background-blend-mode: multiply;
 }
+
+/* Quick mode toggle transition — crossfades, scales, and rotates over 200ms
+   using the playful cubic-bezier from our stamp-down animation for a consistent physical feel. */
+.mode-toggle-transition {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+              opacity 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}

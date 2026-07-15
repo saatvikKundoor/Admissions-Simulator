@@ -147,7 +147,7 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
       </div>
 
       {/* School reveal list */}
-      <div className="bg-[#E2E4EA] rounded-2xl p-5 mb-6">
+      <div className="bg-[#E2E4EA] rounded-2xl p-5 mb-6 paper-grain">
         <h2 style={{ fontFamily: "'Playfair Display', serif" }}
             className="text-2xl font-semibold text-slate-800 mb-4">
           Results
@@ -163,7 +163,7 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
             return (
               <div
                 key={school.id}
-                className={`rounded-xl border px-4 py-3 transition-all duration-400
+                className={`rounded-xl border px-4 py-3 transition-all duration-400 paper-grain
                   ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}
                   ${style.bg} ${style.border}`}
               >

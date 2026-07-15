@@ -28,7 +28,7 @@ function StatCard({ label, value, color, delay, trigger }) {
   return (
     <div 
       style={{ animationDelay: delay }}
-      className={`rounded-2xl px-7 py-6 text-center shadow-sm ${colors[color] ?? 'bg-slate-100'} ${
+      className={`rounded-2xl px-7 py-6 text-center shadow-sm paper-grain ${colors[color] ?? 'bg-slate-100'} ${
         trigger ? 'animate-stamp' : 'opacity-0'
       }`}
     >

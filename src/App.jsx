@@ -210,9 +210,58 @@ export default function App() {
               onClick={toggleMode}
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
               className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white
-                         text-xs text-slate-600 hover:bg-slate-50 transition-colors"
+                         text-xs text-slate-600 hover:bg-slate-50 transition-colors
+                         inline-flex items-center gap-1.5"
             >
-              {guessMode === 'cycle' ? '⇄ Drag mode' : '☑ Tap mode'}
+              <span className="relative w-4 h-4 flex items-center justify-center shrink-0">
+                {/* Drag Icon: active when in 'cycle' mode (the target mode to switch to) */}
+                <span
+                  className={`absolute inset-0 mode-toggle-transition ${
+                    guessMode === 'cycle'
+                      ? 'opacity-100 scale-100 rotate-0'
+                      : 'opacity-0 scale-75 -rotate-12 pointer-events-none'
+                  }`}
+                >
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    stroke="#aa3bff"
+                    strokeWidth="1.35"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-full h-full"
+                  >
+                    <path d="M10 3v14M3 10h14" />
+                    <path d="M7 5l3-3 3 3" />
+                    <path d="M7 15l3 3-3 3" />
+                    <path d="M5 7l-3 3 3 3" />
+                    <path d="M15 7l3 3-3 3" />
+                  </svg>
+                </span>
+
+                {/* Tap Icon: active when in 'drag' mode (the target mode to switch to) */}
+                <span
+                  className={`absolute inset-0 mode-toggle-transition ${
+                    guessMode === 'drag'
+                      ? 'opacity-100 scale-100 rotate-0'
+                      : 'opacity-0 scale-75 rotate-12 pointer-events-none'
+                  }`}
+                >
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    stroke="#aa3bff"
+                    strokeWidth="1.35"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-full h-full"
+                  >
+                    <rect x="3" y="3" width="14" height="14" rx="3" />
+                    <path d="m6.5 10 2.5 2.5 4.5-5" />
+                  </svg>
+                </span>
+              </span>
+              <span>{guessMode === 'cycle' ? 'Drag mode' : 'Tap mode'}</span>
             </button>
           </div>
         )}
