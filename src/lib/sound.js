@@ -181,6 +181,14 @@ export function playCelebration() {
 
 // A soft, muted thud — a gentler, lower-key sibling to playStamp(), used as
 // a subdued acknowledgment when a low session score lands.
+//
+// Fix: the previous version dropped to 45 Hz on a single bare sine wave,
+// which is below (or right at the edge of) what most laptop/phone speakers
+// can actually reproduce — the sound was firing correctly but was
+// effectively inaudible. This keeps the same "soft, low, muted" character
+// but raises the floor above the typical speaker rolloff and adds a very
+// short, quiet noise layer (much quieter than playStamp's) so there's some
+// audible transient even where the sine tone itself is faint.
 export function playConsolation() {
   if (!isSoundEnabled()) return
   const audioCtx = getContext()
@@ -190,12 +198,29 @@ export function playConsolation() {
   const osc = audioCtx.createOscillator()
   const gain = audioCtx.createGain()
   osc.type = 'sine'
-  osc.frequency.setValueAtTime(140, now)
-  osc.frequency.exponentialRampToValueAtTime(45, now + 0.22)
-  gain.gain.setValueAtTime(0.16, now)
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26)
+  osc.frequency.setValueAtTime(220, now)
+  osc.frequency.exponentialRampToValueAtTime(90, now + 0.26)
+  gain.gain.setValueAtTime(0.22, now)
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32)
   osc.connect(gain)
   gain.connect(audioCtx.destination)
   osc.start(now)
-  osc.stop(now + 0.27)
+  osc.stop(now + 0.33)
+
+  // Very quiet, short noise layer — just enough transient "thud" texture
+  // to register on small speakers, without turning this into a second
+  // playStamp().
+  const bufferSize = Math.floor(audioCtx.sampleRate * 0.03)
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize)
+  }
+  const noise = audioCtx.createBufferSource()
+  noise.buffer = buffer
+  const noiseGain = audioCtx.createGain()
+  noiseGain.gain.setValueAtTime(0.06, now)
+  noise.connect(noiseGain)
+  noiseGain.connect(audioCtx.destination)
+  noise.start(now)
 }

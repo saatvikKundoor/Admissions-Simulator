@@ -19,9 +19,24 @@
 
 /* Tailwind Animation Utilities */
 .animate-stamp {
-  animation: stamp-down 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  /* "both" (not "forwards") so the 0% keyframe state (opacity:0, scaled up)
+     holds during any animation-delay, instead of the element flashing at
+     full/default opacity right before the entrance animation kicks in. */
+  animation: stamp-down 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
 }
 
 .animate-confetti {
   animation: confetti-fall 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Faint paper-grain texture — a low-opacity, seamlessly tiling noise pattern
+   layered onto every pastel card via background-blend-mode, so panels read
+   as "physical file paper" rather than flat digital color fills. This rides
+   on the same background layer as the element's own bg-color utility class
+   (e.g. bg-[#E8E4F3]), so it's a single extra class with zero markup changes
+   and no z-index/stacking concerns — backgrounds always paint below content. */
+.paper-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='paperGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperGrain)' opacity='0.05'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-blend-mode: multiply;
 }

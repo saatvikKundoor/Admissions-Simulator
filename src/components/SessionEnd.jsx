@@ -140,7 +140,7 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain }
       
       {/* High Score Celebration: Acceptance Paper Confetti */}
       {pct >= 75 && mainDone && (
-        <div className="absolute inset-0 top-[-20px] left-0 right-0 bottom-0 pointer-events-none overflow-hidden z-50">
+        <div className="absolute -top-5 right-0 bottom-0 left-0 pointer-events-none overflow-hidden z-50">
           {confettiPieces.map((piece) => (
             <div
               key={piece.id}
