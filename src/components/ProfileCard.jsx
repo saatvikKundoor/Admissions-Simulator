@@ -77,7 +77,7 @@ function SectionCard({ title, color, children, className = '' }) {
   return (
     <GlowCard
       color={color}
-      className={`rounded-2xl p-5 paper-grain ${colors[color] ?? 'bg-slate-100'} ${className}`}
+      className={`rounded-2xl p-5 ${colors[color] ?? 'bg-slate-100'} ${className}`}
     >
       <h2 style={{ fontFamily: "'Playfair Display', serif" }}
           className="text-xl font-semibold text-slate-800 mb-4">
@@ -294,7 +294,7 @@ export default function ProfileCard({
           />
         ) : (
           <>
-            <div className="bg-[#E2E4EA] rounded-2xl p-6 paper-grain">
+            <div className="bg-[#E2E4EA] rounded-2xl p-6">
               <h2 style={{ fontFamily: "'Playfair Display', serif" }}
                   className="text-2xl font-semibold text-slate-800 mb-1">
                 College List

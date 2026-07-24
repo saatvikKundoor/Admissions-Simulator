@@ -57,7 +57,7 @@ function DroppableColumn({ columnId, label, schools }) {
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-2xl border-2 p-4 min-h-[108px] transition-all paper-grain
+      className={`rounded-2xl border-2 p-4 min-h-[108px] transition-all
                   ${style.bg} ${isOver ? 'border-slate-400 scale-[1.01]' : style.border}`}
     >
       <div className="flex items-center gap-2 mb-3">
@@ -86,7 +86,7 @@ function UnplacedTray({ schools }) {
   return (
     <div
       ref={setNodeRef}
-      className={`bg-[#E2E4EA] rounded-2xl p-4 h-full transition-all paper-grain
+      className={`bg-[#E2E4EA] rounded-2xl p-4 h-full transition-all
                   ${isOver ? 'ring-2 ring-slate-400' : ''}`}
     >
       <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">

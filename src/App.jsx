@@ -155,7 +155,7 @@ export default function App() {
   if (!gameStarted) return <LandingPage onStart={() => setGameStarted(true)} />
 
   if (showSessionEnd) return (
-    <div className="min-h-screen bg-[#F2F0EB] flex items-center justify-center px-6 md:px-10 lg:px-16 py-16">
+    <div className="min-h-screen bg-[#F2F0EB]   flex items-center justify-center px-6 md:px-10 lg:px-16 py-16">
       <SessionEnd
         correct={sessionCorrect}
         total={sessionTotal}
@@ -166,14 +166,14 @@ export default function App() {
   )
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F2F0EB] flex items-center justify-center">
+    <div className="min-h-screen bg-[#F2F0EB]   flex items-center justify-center">
       <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
          className="text-slate-400 text-sm">Loading profile…</p>
     </div>
   )
 
   if (error) return (
-    <div className="min-h-screen bg-[#F2F0EB] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#F2F0EB]   flex items-center justify-center px-4">
       <div className="max-w-xl w-full bg-red-50 border border-red-200 rounded-2xl px-6 py-4">
         <p className="text-sm font-semibold text-red-600 mb-1">Database error</p>
         <p className="text-sm text-red-500">{error}</p>
@@ -184,7 +184,7 @@ export default function App() {
   if (!profile) return null
 
   return (
-    <div className="min-h-screen bg-[#F2F0EB]">
+    <div className="min-h-screen bg-[#F2F0EB]  ">
       <header className="px-6 md:px-10 lg:px-16 pt-10 pb-6 flex items-start justify-between">
         <div>
           <h1 style={{ fontFamily: "'Playfair Display', serif" }}
@@ -226,16 +226,14 @@ export default function App() {
                     viewBox="0 0 20 20"
                     fill="none"
                     stroke="#aa3bff"
-                    strokeWidth="1.35"
+                    strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="w-full h-full"
                   >
-                    <path d="M10 3v14M3 10h14" />
-                    <path d="M7 5l3-3 3 3" />
-                    <path d="M7 15l3 3-3 3" />
-                    <path d="M5 7l-3 3 3 3" />
-                    <path d="M15 7l3 3-3 3" />
+                    <path d="M2.5 10h15" />
+                    <path d="M13.5 5.5 18 10l-4.5 4.5" />
+                    <path d="M6.5 5.5 2 10l4.5 4.5" />
                   </svg>
                 </span>
 

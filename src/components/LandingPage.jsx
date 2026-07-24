@@ -55,7 +55,7 @@ const STEP_COLORS = {
 
 export default function LandingPage({ onStart }) {
   return (
-    <div className="min-h-screen bg-[#F2F0EB]">
+    <div className="min-h-screen bg-[#F2F0EB] paper-grain">
       <div className="max-w-6xl mx-auto px-6 md:px-10 lg:px-16 py-14 md:py-20">
 
         {/* ── Hero ── */}
@@ -118,7 +118,7 @@ export default function LandingPage({ onStart }) {
                 return (
                   <div
                     key={school.name}
-                    className={`rounded-xl border px-4 py-3 flex items-center justify-between paper-grain ${style.bg} ${style.border}`}
+                    className={`rounded-xl border px-4 py-3 flex items-center justify-between ${style.bg} ${style.border}`}
                   >
                     <div>
                       <p className={`text-sm font-semibold ${style.text}`}>{school.name}</p>
@@ -142,7 +142,7 @@ export default function LandingPage({ onStart }) {
             {STEPS.map((step) => (
               <div
                 key={step.n}
-                className={`rounded-2xl p-6 paper-grain ${STEP_COLORS[step.color]}`}
+                className={`rounded-2xl p-6 ${STEP_COLORS[step.color]}`}
               >
                 <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
                    className="text-xs text-slate-500 tracking-widest mb-3">
