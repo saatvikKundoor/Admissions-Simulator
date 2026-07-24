@@ -22,7 +22,7 @@ const FLAVOR = [
   { min: 75,  max: 99,  text: "Sharp read. Most people don't do this well." },
   { min: 50,  max: 74,  text: "Respectable. Admissions is harder than it looks." },
   { min: 25,  max: 49,  text: "The process is more surprising than you expected, isn't it?" },
-  { min: 0,   max: 24,  text: "Don't worry — even AOs are wrong sometimes." },
+  { min: 0,   max: 24,  text: "Don't worry. Even AOs are wrong sometimes." },
 ]
 
 function flavorText(pct) {

@@ -30,7 +30,7 @@ const STEPS = [
   {
     n: '01',
     title: 'Read the file',
-    body: 'Grades, activities, essays — the same profile an admissions officer would see.',
+    body: 'The same profile an admissions officer would see: grades, activities, essays.',
     color: 'teal',
   },
   {
