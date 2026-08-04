@@ -168,7 +168,9 @@ function SchoolGuessRow({ school, guess, onCycle }) {
   )
 }
 
-function SubmitRow({ anyGuessed, guessMode, onSubmit }) {
+function SubmitRow({ anyGuessed, guessMode, onSubmit, guessedCount, totalCount }) {
+  const complete = guessedCount === totalCount
+
   return (
     <div className="flex items-center justify-end gap-4">
       {!anyGuessed && (
@@ -177,6 +179,14 @@ function SubmitRow({ anyGuessed, guessMode, onSubmit }) {
           {guessMode === 'cycle'
             ? 'Tap schools above to make predictions'
             : 'Drag schools into a column'}
+        </p>
+      )}
+      {anyGuessed && (
+        <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
+           className={`text-sm text-right transition-colors ${
+             complete ? 'font-semibold text-slate-800' : 'text-slate-400'
+           }`}>
+          {guessedCount} of {totalCount} predicted
         </p>
       )}
       <button
@@ -205,6 +215,7 @@ export default function ProfileCard({
   const extracurriculars = profile.extracurriculars ?? []
   const awards = profile.awards ?? []
   const schools = profile.schools ?? []
+  const guessedCount = schools.filter(s => guesses[s.id]).length
 
   // Split so the left column gets items 1..half and the right column gets half+1..end,
   // instead of interleaving (1 left, 2 right, 3 left...).
@@ -289,7 +300,13 @@ export default function ProfileCard({
             guesses={guesses}
             onDrop={onDrop}
             footer={
-              <SubmitRow anyGuessed={anyGuessed} guessMode={guessMode} onSubmit={onSubmit} />
+              <SubmitRow
+                anyGuessed={anyGuessed}
+                guessMode={guessMode}
+                onSubmit={onSubmit}
+                guessedCount={guessedCount}
+                totalCount={schools.length}
+              />
             }
           />
         ) : (
@@ -322,7 +339,13 @@ export default function ProfileCard({
               </div>
             </div>
             <div className="mt-6">
-              <SubmitRow anyGuessed={anyGuessed} guessMode={guessMode} onSubmit={onSubmit} />
+              <SubmitRow
+                anyGuessed={anyGuessed}
+                guessMode={guessMode}
+                onSubmit={onSubmit}
+                guessedCount={guessedCount}
+                totalCount={schools.length}
+              />
             </div>
           </>
         )}

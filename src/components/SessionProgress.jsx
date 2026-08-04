@@ -30,19 +30,19 @@ export default function SessionProgress({ completed, total }) {
   const current = Math.min(completed + 1, total)
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-4">
       <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
-         className="text-xs text-slate-500 uppercase tracking-widest whitespace-nowrap">
+         className="text-sm text-slate-500 uppercase tracking-widest whitespace-nowrap">
         Applicant {current} of {total}
       </p>
-      <div className="flex items-center gap-1 flex-wrap">
+      <div className="flex items-center gap-1.5 flex-wrap">
         {Array.from({ length: total }).map((_, i) => {
           const done = i < completed
           const Icon = done ? FolderCheckIcon : FolderDotIcon
           return (
             <Icon
               key={i}
-              className={`w-4 h-4 shrink-0 transition-colors ${done ? 'text-slate-900' : 'text-slate-300'}`}
+              className={`w-6 h-6 shrink-0 transition-colors ${done ? 'text-slate-900' : 'text-slate-300'}`}
             />
           )
         })}

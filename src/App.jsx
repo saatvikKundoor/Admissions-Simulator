@@ -213,10 +213,6 @@ export default function App() {
               className="text-4xl font-semibold text-slate-900 tracking-tight">
             Admissions Simulator
           </h1>
-          <p style={{ fontFamily: "'Inter', sans-serif" }}
-             className="text-slate-500 text-sm mt-1">
-            Think like an admissions officer. Who got in?
-          </p>
         </div>
         {!submitted && (
           <div className="flex items-center gap-2 mt-2 shrink-0">
