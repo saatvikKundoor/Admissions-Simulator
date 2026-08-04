@@ -1,13 +1,14 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from './supabaseClient'
 import LandingPage from './components/LandingPage'
+import SessionSetupModal from './components/SessionSetupModal'
+import SessionProgress from './components/SessionProgress'
 import ProfileCard from './components/ProfileCard'
 import RevealScreen from './components/RevealScreen'
 import SessionEnd from './components/SessionEnd'
 import { isSoundEnabled, setSoundEnabled } from './lib/sound'
 
 const CYCLE = [null, 'Admitted', 'Waitlisted', 'Rejected']
-const SESSION_LENGTH = 8
 
 function scoreGuesses(schools, guesses) {
   let correct = 0
@@ -28,6 +29,10 @@ function shuffleArray(array) {
 
 export default function App() {
   const [gameStarted, setGameStarted]     = useState(false)
+  const [showSetupModal, setShowSetupModal] = useState(false)
+  const [sessionLength, setSessionLength] = useState(
+    () => Number(localStorage.getItem('sessionLength')) || 5
+  )
   const [profile, setProfile]             = useState(null)
   const [loading, setLoading]             = useState(false)
   const [error, setError]                 = useState(null)
@@ -118,12 +123,9 @@ export default function App() {
   }
 
   function handleNext() {
-    const round = scoreGuesses(profile.schools, guesses)
-    setSessionCorrect(c => c + round)
-    setSessionTotal(t => t + profile.schools.length)
     const next = sessionCount + 1
     setSessionCount(next)
-    if (next >= SESSION_LENGTH) {
+    if (next >= sessionLength) {
       setShowSessionEnd(true)
     } else {
       fetchRandomProfile(seenIds)
@@ -152,7 +154,26 @@ export default function App() {
 
   const anyGuessed = Object.values(guesses).some(v => v !== null)
 
-  if (!gameStarted) return <LandingPage onStart={() => setGameStarted(true)} />
+  if (!gameStarted) {
+    return (
+      <>
+        <LandingPage onStart={() => setShowSetupModal(true)} />
+        {showSetupModal && (
+          <SessionSetupModal
+            value={sessionLength}
+            onChange={setSessionLength}
+            onClose={() => setShowSetupModal(false)}
+            onBegin={(n) => {
+              setSessionLength(n)
+              localStorage.setItem('sessionLength', String(n))
+              setShowSetupModal(false)
+              setGameStarted(true)
+            }}
+          />
+        )}
+      </>
+    )
+  }
 
   if (showSessionEnd) return (
     <div className="min-h-screen bg-[#F2F0EB]   flex items-center justify-center px-6 md:px-10 lg:px-16 py-16">
@@ -185,7 +206,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F2F0EB]  ">
-      <header className="px-6 md:px-10 lg:px-16 pt-10 pb-6 flex items-start justify-between">
+      <header className="px-6 md:px-10 lg:px-16 pt-10 pb-6">
+        <div className="flex items-start justify-between mb-4">
         <div>
           <h1 style={{ fontFamily: "'Playfair Display', serif" }}
               className="text-4xl font-semibold text-slate-900 tracking-tight">
@@ -263,6 +285,8 @@ export default function App() {
             </button>
           </div>
         )}
+        </div>
+        <SessionProgress completed={sessionCount} total={sessionLength} />
       </header>
 
       <main className="px-6 md:px-10 lg:px-16 pb-16">
