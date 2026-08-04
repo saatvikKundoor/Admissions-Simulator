@@ -7,6 +7,7 @@ import ProfileCard from './components/ProfileCard'
 import RevealScreen from './components/RevealScreen'
 import SessionEnd from './components/SessionEnd'
 import { isSoundEnabled, setSoundEnabled } from './lib/sound'
+import ProfileCardSkeleton from './components/ProfileCardSkeleton'
 
 const CYCLE = [null, 'Admitted', 'Waitlisted', 'Rejected']
 
@@ -186,13 +187,6 @@ export default function App() {
     </div>
   )
 
-  if (loading) return (
-    <div className="min-h-screen bg-[#F2F0EB]   flex items-center justify-center">
-      <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
-         className="text-slate-400 text-sm">Loading profile…</p>
-    </div>
-  )
-
   if (error) return (
     <div className="min-h-screen bg-[#F2F0EB]   flex items-center justify-center px-4">
       <div className="max-w-xl w-full bg-red-50 border border-red-200 rounded-2xl px-6 py-4">
@@ -202,7 +196,7 @@ export default function App() {
     </div>
   )
 
-  if (!profile) return null
+  if (!profile && !loading) return null
 
   return (
     <div className="min-h-screen bg-[#F2F0EB]  ">
@@ -286,7 +280,9 @@ export default function App() {
       </header>
 
       <main className="px-6 md:px-10 lg:px-16 pb-16">
-        {!submitted ? (
+        {loading ? (
+          <ProfileCardSkeleton />
+        ) : !submitted ? (
           <ProfileCard
             profile={profile}
             guesses={guesses}
