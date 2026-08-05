@@ -153,6 +153,15 @@ export default function App() {
     fetchRandomProfile([])
   }
 
+  function handleGoHome() {
+    setSessionCorrect(0)
+    setSessionTotal(0)
+    setSessionCount(0)
+    setShowSessionEnd(false)
+    setSeenIds([])
+    setGameStarted(false)
+  }
+
   const anyGuessed = Object.values(guesses).some(v => v !== null)
 
   if (!gameStarted) {
@@ -183,6 +192,7 @@ export default function App() {
         total={sessionTotal}
         profileCount={sessionCount}
         onPlayAgain={handlePlayAgain}
+        onHome={handleGoHome}
       />
     </div>
   )

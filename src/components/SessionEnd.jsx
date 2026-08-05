@@ -2,6 +2,17 @@
 import { useEffect, useState } from 'react'
 import { playCelebration, playConsolation } from '../lib/sound'
 
+function HomeIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+         strokeLinejoin="round" className={className}>
+      <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+      <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    </svg>
+  )
+}
+
 const FLAVOR = [
   { min: 100, max: 100, text: "A perfect read. You might actually work in admissions." },
   { min: 75,  max: 99,  text: "Sharp instincts. Most people don't do this well." },
@@ -44,7 +55,7 @@ function StatCard({ label, value, color, delay, trigger }) {
   )
 }
 
-export default function SessionEnd({ correct, total, profileCount, onPlayAgain }) {
+export default function SessionEnd({ correct, total, profileCount, onPlayAgain, onHome }) {
   const pct = total > 0 ? Math.round((correct / total) * 100) : 0
 
   // Phase 1 — big score count-up
@@ -197,9 +208,17 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain }
         <StatCard label="Applicants" value={applicantsDisplay}   color="sky"      delay="240ms" trigger={mainDone} />
       </div>
 
-      <div className={`flex justify-end transition-opacity duration-500 ${
+      <div className={`flex justify-end items-center gap-3 transition-opacity duration-500 ${
         statsDone ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}>
+        <button
+          onClick={onHome}
+          aria-label="Return to home"
+          className="p-3.5 rounded-xl transition-colors
+                     border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+        >
+          <HomeIcon className="w-5 h-5" />
+        </button>
         <button
           onClick={onPlayAgain}
           style={{ fontFamily: "'Inter', sans-serif" }}
