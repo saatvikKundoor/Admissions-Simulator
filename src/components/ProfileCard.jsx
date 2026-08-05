@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import DragGuess from './DragGuess'
-import { playStamp, playHover } from '../lib/sound'
+import { playStamp, playClick, playHover } from '../lib/sound'
 
 function str(value) {
   if (value === null || value === undefined) return '—'
@@ -191,7 +191,7 @@ function SubmitRow({ anyGuessed, guessMode, onSubmit, guessedCount, totalCount }
         </p>
       )}
       <button
-        onClick={onSubmit}
+        onClick={() => { playClick(); onSubmit() }}
         disabled={!anyGuessed}
         style={{ fontFamily: "'Inter', sans-serif" }}
         className="px-8 py-3 rounded-xl font-semibold text-sm tracking-wide transition-colors

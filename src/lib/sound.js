@@ -166,6 +166,87 @@ export function playHover() {
   noise.start(now)
 }
 
+// A bright, short confirm click for primary CTAs — Start Game, Begin,
+// Submit Guesses, Next Applicant, Play Again. Two layers: a crisp
+// high-frequency transient for the "snap," and a brief tonal body
+// underneath so it reads as a deliberate confirmation rather than a
+// bare tap. Sits well clear of playStamp (low thud) and playHover
+// (quiet, higher, much shorter) in both register and duration.
+export function playClick() {
+  if (!isSoundEnabled()) return
+  const audioCtx = getContext()
+  if (!audioCtx) return
+  const now = audioCtx.currentTime
+
+  // Soft paper-flick texture — bandpass noise, much duller than a
+  // mechanical click, short enough to read as a tap rather than a hiss
+  const bufferSize = Math.floor(audioCtx.sampleRate * 0.02)
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize)
+  }
+  const noise = audioCtx.createBufferSource()
+  noise.buffer = buffer
+  const noiseFilter = audioCtx.createBiquadFilter()
+  noiseFilter.type = 'bandpass'
+  noiseFilter.frequency.setValueAtTime(jitter(1100), now)
+  noiseFilter.Q.value = 0.9
+  const noiseGain = audioCtx.createGain()
+  noiseGain.gain.setValueAtTime(jitter(0.1, 0.15), now)
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03)
+  noise.connect(noiseFilter)
+  noiseFilter.connect(noiseGain)
+  noiseGain.connect(audioCtx.destination)
+  noise.start(now)
+
+  // Soft sine thump underneath — same family as playStamp's body but
+  // pitched noticeably higher and decaying much faster, so it reads as a
+  // light tap rather than a heavy stamp landing
+  const osc = audioCtx.createOscillator()
+  const gain = audioCtx.createGain()
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(jitter(340), now)
+  osc.frequency.exponentialRampToValueAtTime(jitter(200), now + 0.06)
+  gain.gain.setValueAtTime(jitter(0.2, 0.12), now)
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07)
+  osc.connect(gain)
+  gain.connect(audioCtx.destination)
+  osc.start(now)
+  osc.stop(now + 0.07)
+}
+
+// A quieter, drier click for secondary/toggle actions — sound toggle,
+// mode toggle, modal close, End Session, Home. Deliberately lower-pitched
+// and shorter than playClick so the hierarchy between "confirming
+// something" and "flipping a switch" is audible, not just visual.
+export function playToggleClick() {
+  if (!isSoundEnabled()) return
+  const audioCtx = getContext()
+  if (!audioCtx) return
+  const now = audioCtx.currentTime
+
+  const bufferSize = Math.floor(audioCtx.sampleRate * 0.01)
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize)
+  }
+  const noise = audioCtx.createBufferSource()
+  noise.buffer = buffer
+  const filter = audioCtx.createBiquadFilter()
+  filter.type = 'bandpass'
+  filter.frequency.setValueAtTime(jitter(1300), now)
+  filter.Q.value = 1.4
+  const gain = audioCtx.createGain()
+  gain.gain.setValueAtTime(jitter(0.08, 0.15), now)
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025)
+  noise.connect(filter)
+  filter.connect(gain)
+  gain.connect(audioCtx.destination)
+  noise.start(now)
+}
+
 // A card-flip sound — a short burst of noise swept from high to low frequency
 // (the rustle of the card turning through the air), followed by a bright
 // snap right as it settles (the card landing flat). Distinct from the deep

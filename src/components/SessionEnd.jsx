@@ -1,6 +1,6 @@
 // SessionEnd.jsx
 import { useEffect, useState } from 'react'
-import { playCelebration, playConsolation } from '../lib/sound'
+import { playCelebration, playConsolation, playClick, playToggleClick } from '../lib/sound'
 
 function HomeIcon({ className }) {
   return (
@@ -212,7 +212,7 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain, 
         statsDone ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}>
         <button
-          onClick={onHome}
+          onClick={() => { playToggleClick(); onHome() }}
           aria-label="Return to home"
           className="p-3.5 rounded-xl transition-colors
                      border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
@@ -220,7 +220,7 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain, 
           <HomeIcon className="w-5 h-5" />
         </button>
         <button
-          onClick={onPlayAgain}
+          onClick={() => { playClick(); onPlayAgain() }}
           style={{ fontFamily: "'Inter', sans-serif" }}
           className="px-10 py-4 rounded-xl font-semibold text-base tracking-wide
                      bg-slate-900 text-white hover:bg-slate-700 transition-colors shadow-md"

@@ -4,6 +4,8 @@
 // session (1-20, default 5). Closing via the X reveals the landing page
 // again without starting the game.
 
+import { playClick, playToggleClick } from '../lib/sound'
+
 function XIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -23,7 +25,7 @@ export default function SessionSetupModal({ value, onChange, onClose, onBegin })
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/50 backdrop-blur-sm">
       <div className="relative bg-[#F2F0EB] rounded-2xl p-8 max-w-md w-full shadow-2xl">
         <button
-          onClick={onClose}
+          onClick={() => { playToggleClick(); onClose() }}
           aria-label="Close"
           className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
         >
@@ -63,7 +65,7 @@ export default function SessionSetupModal({ value, onChange, onClose, onBegin })
         </div>
 
         <button
-          onClick={() => onBegin(value)}
+          onClick={() => { playClick(); onBegin(value) }}
           style={{ fontFamily: "'Inter', sans-serif" }}
           className="w-full px-8 py-3 rounded-xl font-semibold text-sm tracking-wide
                      bg-slate-900 text-white hover:bg-slate-700 transition-colors"

@@ -2,7 +2,7 @@
 // Shows actual outcomes vs player guesses, animated stagger, score + flavor text
 
 import { useEffect, useState } from 'react'
-import { playReveal } from '../lib/sound'
+import { playReveal, playClick, playToggleClick } from '../lib/sound'
 
 const OUTCOME_STYLE = {
   Admitted:   { bg: 'bg-green-100',  border: 'border-green-300',  text: 'text-green-800'  },
@@ -219,7 +219,7 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
           forward action (Next Applicant) stays the dominant, rightmost choice. */}
       <div className={`flex justify-end items-center gap-3 transition-opacity duration-500 ${allRevealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <button
-          onClick={onEndSession}
+          onClick={() => { playToggleClick(); onEndSession() }}
           style={{ fontFamily: "'Inter', sans-serif" }}
           className="px-6 py-3 rounded-xl font-semibold text-sm tracking-wide transition-colors
                      border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
@@ -227,7 +227,7 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
           End Session
         </button>
         <button
-          onClick={onNext}
+          onClick={() => { playClick(); onNext() }}
           style={{ fontFamily: "'Inter', sans-serif" }}
           className="px-8 py-3 rounded-xl font-semibold text-sm tracking-wide
                      bg-slate-900 text-white hover:bg-slate-700 transition-colors"

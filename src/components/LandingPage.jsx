@@ -8,6 +8,8 @@
 // the landing page reads as part of the same product, not a bolted-on splash
 // screen. Fills the viewport instead of one small centered block.
 
+import { playClick } from '../lib/sound'
+
 const ICON = {
   Admitted:   '/icons/admitted.png',
   Waitlisted: '/icons/waitlisted.png',
@@ -85,7 +87,7 @@ export default function LandingPage({ onStart }) {
 
             <div className="flex items-center gap-4 mb-6">
               <button
-                onClick={onStart}
+                onClick={() => { playClick(); onStart() }}
                 style={{ fontFamily: "'Inter', sans-serif" }}
                 className="px-10 py-4 rounded-xl font-semibold text-lg tracking-wide
                            bg-slate-900 text-white hover:bg-slate-700 transition-colors"
