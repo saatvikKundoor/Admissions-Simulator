@@ -10,7 +10,7 @@ import {
   useDroppable,
   useDraggable,
 } from '@dnd-kit/core'
-import { playPickup, playStamp } from '../lib/sound'
+import { playPickup, playStamp, playHover } from '../lib/sound'
 
 const COLUMNS = ['Admitted', 'Waitlisted', 'Rejected']
 
@@ -27,6 +27,7 @@ function DraggableChip({ id, name }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
+      onMouseEnter={playHover}
       className={`px-3 py-2 bg-white rounded-lg border border-slate-200 text-sm
                   text-slate-800 font-medium shadow-sm select-none touch-none
                   cursor-grab active:cursor-grabbing transition-all duration-150

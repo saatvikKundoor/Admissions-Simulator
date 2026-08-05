@@ -13,6 +13,8 @@
 
 const STORAGE_KEY = 'soundEnabled'
 
+let lastHoverTime = 0
+const HOVER_THROTTLE_MS = 200
 let ctx = null
 
 function getContext() {
@@ -22,6 +24,10 @@ function getContext() {
   if (!ctx) ctx = new AudioCtx()
   if (ctx.state === 'suspended') ctx.resume()
   return ctx
+}
+
+function jitter(value, amount = 0.08) {
+  return value * (1 + (Math.random() * 2 - 1) * amount)
 }
 
 export function isSoundEnabled() {
@@ -41,33 +47,49 @@ export function playStamp() {
   if (!audioCtx) return
   const now = audioCtx.currentTime
 
-  // Low percussive thud — the "stamp hitting paper" body
+  // 1. Low percussive thud (Body)
   const osc = audioCtx.createOscillator()
   const gain = audioCtx.createGain()
+  
   osc.type = 'sine'
-  osc.frequency.setValueAtTime(190, now)
-  osc.frequency.exponentialRampToValueAtTime(55, now + 0.13)
-  gain.gain.setValueAtTime(0.3, now)
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17)
+  osc.frequency.setValueAtTime(jitter(190), now)
+  osc.frequency.exponentialRampToValueAtTime(jitter(55), now + 0.13)
+
+  const peakGain = jitter(0.3, 0.12)
+  // Micro-attack (0 -> peak in 3ms) prevents initial digital click
+  gain.gain.setValueAtTime(0, now)
+  gain.gain.linearRampToValueAtTime(peakGain, now + 0.003)
+  // Smooth decay to near-zero before stopping
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.17)
+
   osc.connect(gain)
   gain.connect(audioCtx.destination)
   osc.start(now)
   osc.stop(now + 0.18)
 
-  // Short burst of filtered noise layered on top for the stamp's "snap"
+  // 2. Short noise burst (Snap/Texture)
   const bufferSize = Math.floor(audioCtx.sampleRate * 0.025)
   const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
   const data = buffer.getChannelData(0)
+  
   for (let i = 0; i < bufferSize; i++) {
     data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize)
   }
+  
   const noise = audioCtx.createBufferSource()
   noise.buffer = buffer
+
   const noiseGain = audioCtx.createGain()
-  noiseGain.gain.setValueAtTime(0.18, now)
+  // Micro-attack and smooth fade-out for the noise layer as well
+  noiseGain.gain.setValueAtTime(0, now)
+  noiseGain.gain.linearRampToValueAtTime(0.18, now + 0.002)
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.025)
+
   noise.connect(noiseGain)
   noiseGain.connect(audioCtx.destination)
+
   noise.start(now)
+  noise.stop(now + 0.026) // Cleanly end buffer playout
 }
 
 export function playPickup() {
@@ -95,6 +117,48 @@ export function playPickup() {
   gain.gain.setValueAtTime(0.001, now)
   gain.gain.linearRampToValueAtTime(0.12, now + 0.03)
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15)
+
+  noise.connect(filter)
+  filter.connect(gain)
+  gain.connect(audioCtx.destination)
+  noise.start(now)
+}
+
+// A soft, subtle click for hover-enter feedback on school rows/chips.
+// Deliberately quieter and shorter than playStamp/playPickup since this
+// fires far more often — every mouse pass over a row — and must never
+// announce itself the way a deliberate action (tap, drag, submit) does.
+export function playHover() {
+  if (!isSoundEnabled()) return
+  // Throttle rapid-fire hovers (e.g. sweeping the mouse down the list) so
+  // they don't stack into an overlapping "rattle" — only the first hover
+  // in a burst plays, subsequent ones within the window are dropped.
+  const nowMs = Date.now()
+  if (nowMs - lastHoverTime < HOVER_THROTTLE_MS) return
+  lastHoverTime = nowMs
+
+  const audioCtx = getContext()
+  if (!audioCtx) return
+  const now = audioCtx.currentTime
+
+  const bufferSize = Math.floor(audioCtx.sampleRate * 0.02)
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize)
+  }
+  const noise = audioCtx.createBufferSource()
+  noise.buffer = buffer
+
+  const filter = audioCtx.createBiquadFilter()
+  filter.type = 'bandpass'
+  filter.frequency.setValueAtTime(jitter(2200), now)
+  filter.Q.value = 1.2
+
+  const gain = audioCtx.createGain()
+  gain.gain.setValueAtTime(0.001, now)
+  gain.gain.linearRampToValueAtTime(jitter(0.09, 0.15), now + 0.004)
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03)
 
   noise.connect(filter)
   filter.connect(gain)

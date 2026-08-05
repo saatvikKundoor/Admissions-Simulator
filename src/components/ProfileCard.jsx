@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import DragGuess from './DragGuess'
-import { playStamp } from '../lib/sound'
+import { playStamp, playHover } from '../lib/sound'
 
 function str(value) {
   if (value === null || value === undefined) return '—'
@@ -148,6 +148,7 @@ function SchoolGuessRow({ school, guess, onCycle }) {
   return (
     <button
       onClick={handleClick}
+      onMouseEnter={playHover}
       className={`w-full flex items-center justify-between py-2.5 px-1
                   border-b border-black/10 last:border-0 transition-colors
                   text-left cursor-pointer rounded-lg ${bg}`}
