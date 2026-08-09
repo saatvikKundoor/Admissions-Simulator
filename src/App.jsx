@@ -152,6 +152,10 @@ export default function App() {
   }
 
   function handleNext() {
+    const round = scoreGuesses(profile.schools, guesses)
+    setSessionCorrect(c => c + round)
+    setSessionTotal(t => t + profile.schools.length)
+
     const next = sessionCount + 1
     setSessionCount(next)
     if (next >= sessionLength) {
@@ -341,6 +345,7 @@ export default function App() {
             onNext={handleNext}
             onEndSession={handleEndSession}
             elapsedMs={roundElapsedMs}
+            isLastRound={sessionCount + 1 >= sessionLength}
           />
         )}
       </main>

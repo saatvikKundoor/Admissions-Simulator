@@ -67,7 +67,7 @@ function formatDuration(ms) {
 
 const COUNT_DURATION_MS = 600
 
-export default function RevealScreen({ profile, guesses, onNext, onEndSession, elapsedMs }) {
+export default function RevealScreen({ profile, guesses, onNext, onEndSession, elapsedMs, isLastRound }) {
   const schools = sortByOutcome(profile.schools ?? [])
   const [visibleCount, setVisibleCount] = useState(0)
   const [countDisplay, setCountDisplay] = useState(0)
@@ -214,26 +214,39 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
         </div>
       </div>
 
-      {/* Next Applicant (primary) + End Session (secondary) — appear after all revealed.
-          End Session sits to the left as a lower-emphasis outlined button so the
-          forward action (Next Applicant) stays the dominant, rightmost choice. */}
+      {/* Last round: only a forward path to the session summary exists, so
+          show a single "Session Results" button. Otherwise, Next Applicant
+          (primary) + End Session (secondary, lower-emphasis, early-exit). */}
       <div className={`flex justify-end items-center gap-3 transition-opacity duration-500 ${allRevealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-        <button
-          onClick={() => { playToggleClick(); onEndSession() }}
-          style={{ fontFamily: "'Inter', sans-serif" }}
-          className="px-6 py-3 rounded-xl font-semibold text-sm tracking-wide transition-colors
-                     border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
-        >
-          End Session
-        </button>
-        <button
-          onClick={() => { playClick(); onNext() }}
-          style={{ fontFamily: "'Inter', sans-serif" }}
-          className="px-8 py-3 rounded-xl font-semibold text-sm tracking-wide
-                     bg-slate-900 text-white hover:bg-slate-700 transition-colors"
-        >
-          Next Applicant →
-        </button>
+        {isLastRound ? (
+          <button
+            onClick={() => { playClick(); onNext() }}
+            style={{ fontFamily: "'Inter', sans-serif" }}
+            className="px-8 py-3 rounded-xl font-semibold text-sm tracking-wide
+                       bg-slate-900 text-white hover:bg-slate-700 transition-colors"
+          >
+            Session Results →
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={() => { playToggleClick(); onEndSession() }}
+              style={{ fontFamily: "'Inter', sans-serif" }}
+              className="px-6 py-3 rounded-xl font-semibold text-sm tracking-wide transition-colors
+                         border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+            >
+              End Session
+            </button>
+            <button
+              onClick={() => { playClick(); onNext() }}
+              style={{ fontFamily: "'Inter', sans-serif" }}
+              className="px-8 py-3 rounded-xl font-semibold text-sm tracking-wide
+                         bg-slate-900 text-white hover:bg-slate-700 transition-colors"
+            >
+              Next Applicant →
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
