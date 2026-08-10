@@ -75,7 +75,7 @@ export default function LandingPage({ onStart }) {
 
             <h1 style={{ fontFamily: "'Playfair Display', serif" }}
                 className="text-5xl md:text-6xl font-semibold text-slate-900 tracking-tight mb-4">
-              Admissions Simulator
+              Admissions Partner
             </h1>
 
             <p style={{ fontFamily: "'Playfair Display', serif" }}

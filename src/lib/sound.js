@@ -203,7 +203,14 @@ export function playClick() {
   osc.stop(now + 0.07)
 }
 
-// A quieter, drier click for secondary/toggle actions.
+// A quieter, drier click for secondary/toggle actions — sound toggle,
+// mode toggle, modal close, End Session, Home. Deliberately lower-pitched
+// and shorter than playClick so the hierarchy between "confirming
+// something" and "flipping a switch" is audible, not just visual.
+//
+// Same noise-only texture as before (no tonal body, unlike playClick) —
+// just louder and slightly longer, since at its old gain (peak 0.08) it
+// was getting buried under background music even at max SFX volume.
 export function playToggleClick() {
   const volume = getSfxVolume()
   if (volume <= 0) return
@@ -211,7 +218,7 @@ export function playToggleClick() {
   if (!audioCtx) return
   const now = audioCtx.currentTime
 
-  const bufferSize = Math.floor(audioCtx.sampleRate * 0.01)
+  const bufferSize = Math.floor(audioCtx.sampleRate * 0.018)
   const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
   const data = buffer.getChannelData(0)
   for (let i = 0; i < bufferSize; i++) {
@@ -224,14 +231,13 @@ export function playToggleClick() {
   filter.frequency.setValueAtTime(jitter(1300), now)
   filter.Q.value = 1.4
   const gain = audioCtx.createGain()
-  gain.gain.setValueAtTime(jitter(0.08, 0.15) * volume, now)
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025)
+  gain.gain.setValueAtTime(jitter(0.2, 0.15) * volume, now)
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045)
   noise.connect(filter)
   filter.connect(gain)
   gain.connect(audioCtx.destination)
   noise.start(now)
 }
-
 // A card-flip sound for reveal-screen rows.
 export function playReveal() {
   const volume = getSfxVolume()
