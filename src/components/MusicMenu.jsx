@@ -6,7 +6,7 @@
 // adjusted from any screen.
 
 import { useEffect, useRef, useState } from 'react'
-import { getSfxVolume, setSfxVolume, playToggleClick } from '../lib/sound'
+import { getSfxVolume, setSfxVolume, playToggleClick, playSliderTick } from '../lib/sound'
 import { getMusicVolume, setMusicVolume } from '../lib/music'
 
 function MusicIcon({ className }) {
@@ -22,6 +22,15 @@ function MusicIcon({ className }) {
 }
 
 function VolumeSlider({ label, value, onChange }) {
+  function handleChange(next) {
+     // Quantize to every 4 points so a fast drag doesn't fire a tick per
+     // percent — 25 ticks across the full range feels continuous without
+     // spamming the ear.
+     if (Math.floor(next / 4) !== Math.floor(value / 4)) {
+       playSliderTick()
+     }
+     onChange(next)
+   }
   return (
     <div className="mb-4 last:mb-0">
       <div className="flex items-center justify-between mb-1.5">
@@ -40,7 +49,7 @@ function VolumeSlider({ label, value, onChange }) {
         max={100}
         step={1}
         value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) => handleChange(Number(e.target.value))}
         style={{ accentColor: '#0f172a' }}
         className="w-full h-1.5 cursor-pointer"
       />

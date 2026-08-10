@@ -344,3 +344,105 @@ export function playConsolation() {
   noiseGain.connect(audioCtx.destination)
   noise.start(now)
 }
+
+let lastSliderTickTime = 0
+const SLIDER_TICK_THROTTLE_MS = 45
+// A crisp mechanical "snap" for discrete-step sliders.
+// Replaces the synth-heavy square wave with a highly resonant bandpass click
+// layered over a tiny sine-wave "thump" to simulate physical plastic/metal.
+export function playSliderSnap(normalizedPosition = 0.5) {
+  const volume = getSfxVolume()
+  if (volume <= 0) return
+  const audioCtx = getContext()
+  if (!audioCtx) return
+  const now = audioCtx.currentTime
+  const pos = Math.min(1, Math.max(0, normalizedPosition))
+
+  // 1. Mechanical Click (High-frequency mechanism)
+  const clickDuration = 0.015 // 15ms
+  const bufferSize = Math.floor(audioCtx.sampleRate * clickDuration)
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
+  const data = buffer.getChannelData(0)
+  
+  for (let i = 0; i < bufferSize; i++) {
+    // Exponential decay in the buffer data creates a sharper physical attack
+    // rather than a linear fade.
+    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize / 5))
+  }
+  
+  const noise = audioCtx.createBufferSource()
+  noise.buffer = buffer
+  
+  const filter = audioCtx.createBiquadFilter()
+  filter.type = 'bandpass'
+  // Moving up the slider shifts the resonant frequency higher, 
+  // mimicking a tighter ratchet mechanism without playing a musical note.
+  const baseFreq = 3000 + (pos * 2000)
+  filter.frequency.setValueAtTime(jitter(baseFreq), now)
+  filter.Q.value = 3 // Higher Q makes the noise focused and "clicky"
+
+  const noiseGain = audioCtx.createGain()
+  noiseGain.gain.setValueAtTime(jitter(0.4, 0.1) * volume, now)
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, now + clickDuration)
+
+  noise.connect(filter)
+  filter.connect(noiseGain)
+  noiseGain.connect(audioCtx.destination)
+  noise.start(now)
+
+  // 2. Physical Thump (Low-frequency body)
+  // Replaces the square wave with a sine wave for a dull, realistic thud.
+  const osc = audioCtx.createOscillator()
+  const gain = audioCtx.createGain()
+  osc.type = 'sine' 
+  
+  // Very low pitch (150Hz) mimicking a mechanical switch bottoming out.
+  const thumpFreq = 150 + (pos * 50)
+  osc.frequency.setValueAtTime(jitter(thumpFreq), now)
+  osc.frequency.exponentialRampToValueAtTime(50, now + 0.02)
+  
+  gain.gain.setValueAtTime(jitter(0.15, 0.05) * volume, now)
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.02)
+  
+  osc.connect(gain)
+  gain.connect(audioCtx.destination)
+  osc.start(now)
+  osc.stop(now + 0.02) // Fast cutoff prevents ringing
+}
+
+// A soft, quiet tick for continuous sliders (volume). Callers should
+// quantize how often this fires (e.g. only on every 4th value) rather than
+// on every raw onChange event — a tick per 1% change during a fast drag
+// turns into a wall of noise. The short time-throttle here is just a
+// safety net for that.
+export function playSliderTick() {
+  const volume = getSfxVolume()
+  if (volume <= 0) return
+  const nowMs = Date.now()
+  if (nowMs - lastSliderTickTime < SLIDER_TICK_THROTTLE_MS) return
+  lastSliderTickTime = nowMs
+
+  const audioCtx = getContext()
+  if (!audioCtx) return
+  const now = audioCtx.currentTime
+
+  const bufferSize = Math.floor(audioCtx.sampleRate * 0.012)
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize)
+  }
+  const noise = audioCtx.createBufferSource()
+  noise.buffer = buffer
+  const filter = audioCtx.createBiquadFilter()
+  filter.type = 'bandpass'
+  filter.frequency.setValueAtTime(jitter(1800), now)
+  filter.Q.value = 1.0
+  const gain = audioCtx.createGain()
+  gain.gain.setValueAtTime(jitter(0.06, 0.15) * volume, now)
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.02)
+  noise.connect(filter)
+  filter.connect(gain)
+  gain.connect(audioCtx.destination)
+  noise.start(now)
+}
