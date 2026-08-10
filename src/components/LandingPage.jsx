@@ -9,6 +9,7 @@
 // screen. Fills the viewport instead of one small centered block.
 
 import { playClick } from '../lib/sound'
+import SocialLinks from './SocialLinks'
 import SettingsMenu from './SettingsMenu'
 
 const ICON = {
@@ -65,7 +66,7 @@ export default function LandingPage({ onStart }) {
       <div className="max-w-6xl mx-auto px-6 md:px-10 lg:px-16 py-14 md:py-20">
 
         {/* ── Hero ── */}
-        <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
+        <div className="grid lg:grid-cols-2 gap-12 items-center mb-10">
           {/* Copy + CTA */}
           <div>
             <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -137,6 +138,9 @@ export default function LandingPage({ onStart }) {
             </div>
           </div>
         </div>
+
+        {/* ── Social links ── */}
+         <SocialLinks />
 
         {/* ── How it works ── */}
         <div>
