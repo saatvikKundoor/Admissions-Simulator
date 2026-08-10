@@ -10,7 +10,7 @@ A browser-based game where you play college admissions officer. Read a real, ano
 
 ## Features
 
-- **Real applicant profiles:** Every profile comes from a public r/chanceme or r/collegeresults post, with identifying details removed. You see GPA, test scores, extracurriculars, awards, and demographics, the same file an admissions officer would read.
+- **Real applicant profiles:** Every profile comes from a public r/collegeresults post, with identifying details removed. You see GPA, test scores, extracurriculars, awards, and demographics, the same file an admissions officer would read.
 - **Two ways to guess:** Tap through each school to cycle Admitted, Waitlisted, or Rejected, or drag schools into result columns. Whichever feels more natural. Your choice is remembered between sessions.
 - **Animated reveal:** After you submit, results roll in one school at a time with a score count-up and a note on how you did.
 - **Custom sessions:** Pick how many applicants you want to read, anywhere from 1 to 20.
@@ -20,7 +20,7 @@ A browser-based game where you play college admissions officer. Read a real, ano
 
 ## Acknowledgements
 
-- [r/chanceme](https://www.reddit.com/r/chanceme/) and [r/collegeresults](https://www.reddit.com/r/collegeresults/) communities, whose publicly shared posts are the source material for every profile in this game.
+- [r/collegeresults](https://www.reddit.com/r/collegeresults/) communities, whose publicly shared posts are the source material for every profile in this game.
 - [Supabase](https://supabase.com/) for the Postgres backend and API.
 - [dnd kit](https://dndkit.com/) for the drag-and-drop guessing interface.
 - [Tailwind CSS](https://tailwindcss.com/) for styling.
