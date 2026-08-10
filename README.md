@@ -6,7 +6,6 @@
 A browser-based game where you play college admissions officer. Read a real, anonymized applicant profile sourced from Reddit (r/chanceme, r/collegeresults), predict which schools on their list admitted them, then see how your read stacks up against what actually happened.
 
 ### Play now [here](https://admissions-simulator.pages.dev/)!
-#### [Join the Discord community](https://discord.gg/zJBtP7bUm)
 
 ## Features
 
@@ -39,7 +38,3 @@ Don't forget to give the project a star! Thanks again!
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## Community
-
-Join the Discord community [here](https://discord.gg/zJBtP7bUm) to discuss new features, report bugs, talk to the developer, and connect with other players.

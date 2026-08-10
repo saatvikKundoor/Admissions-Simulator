@@ -224,6 +224,10 @@ export default function ProfileCard({
   const ecLeft  = extracurriculars.slice(0, ecHalf)
   const ecRight = extracurriculars.slice(ecHalf)
 
+  const hasSat = profile.sat !== null && profile.sat !== undefined
+  const hasAct = profile.act !== null && profile.act !== undefined
+  const isTestOptional = !hasSat && !hasAct
+
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}
          className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6 items-start">
@@ -251,8 +255,14 @@ export default function ProfileCard({
 
         <SectionCard title="Academics" color="lavender">
           <div className="space-y-0.5">
-            {profile.sat        && <StatRow label="SAT"           value={str(profile.sat)} />}
-            {profile.act        && <StatRow label="ACT"           value={str(profile.act)} />}
+            {isTestOptional ? (
+              <StatRow label="SAT/ACT" value="Test Optional" />
+            ) : (
+              <>
+                {hasSat && <StatRow label="SAT" value={str(profile.sat)} />}
+                {hasAct && <StatRow label="ACT" value={str(profile.act)} />}
+              </>
+            )}
             <StatRow label="Unweighted GPA"  value={str(profile.gpa_unweighted)} />
             <StatRow label="Weighted GPA"    value={str(profile.gpa_weighted)} />
             {profile.class_rank && <StatRow label="Class Rank"    value={str(profile.class_rank)} />}
