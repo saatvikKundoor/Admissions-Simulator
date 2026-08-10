@@ -44,7 +44,7 @@ export default function App() {
   const [submitted, setSubmitted]         = useState(false)
   const [seenIds, setSeenIds]             = useState([])
   const [guessMode, setGuessMode]         = useState(
-    () => localStorage.getItem('guessMode') ?? 'cycle'
+    () => localStorage.getItem('guessMode') ?? 'drag'
   )
   const [profileStartTime, setProfileStartTime] = useState(null)
   const [roundElapsedMs, setRoundElapsedMs]     = useState(0)
