@@ -9,13 +9,14 @@ import { useEffect, useRef, useState } from 'react'
 import { getSfxVolume, setSfxVolume, playToggleClick } from '../lib/sound'
 import { getMusicVolume, setMusicVolume } from '../lib/music'
 
-function SettingsIcon({ className }) {
+function MusicIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
          strokeLinejoin="round" className={className}>
-      <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
-      <circle cx="12" cy="12" r="3" />
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
     </svg>
   )
 }
@@ -47,7 +48,7 @@ function VolumeSlider({ label, value, onChange }) {
   )
 }
 
-export default function SettingsMenu() {
+export default function MusicMenu() {
   const [open, setOpen]   = useState(false)
   const [sfx, setSfx]     = useState(() => Math.round(getSfxVolume() * 100))
   const [music, setMusic] = useState(() => Math.round(getMusicVolume() * 100))
@@ -78,13 +79,13 @@ export default function SettingsMenu() {
     <div ref={containerRef} className="relative">
       <button
         onClick={() => { playToggleClick(); setOpen(o => !o) }}
-        aria-label="Settings"
+        aria-label="Sound Settings"
         aria-expanded={open}
         className="p-2 rounded-lg border border-slate-300 bg-white
                    text-slate-600 hover:bg-slate-50 transition-colors
                    inline-flex items-center justify-center"
       >
-        <SettingsIcon className="w-4 h-4" />
+        <MusicIcon className="w-4 h-4" />
       </button>
 
       {open && (

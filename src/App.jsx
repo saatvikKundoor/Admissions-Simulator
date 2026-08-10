@@ -9,7 +9,7 @@ import SessionEnd from './components/SessionEnd'
 import { playToggleClick } from './lib/sound'
 import { initMusic } from './lib/music'
 import ProfileCardSkeleton from './components/ProfileCardSkeleton'
-import SettingsMenu from './components/SettingsMenu'
+import MusicMenu from './components/MusicMenu'
 
 
 const CYCLE = [null, 'Admitted', 'Waitlisted', 'Rejected']
@@ -282,7 +282,7 @@ export default function App() {
               <span>{guessMode === 'cycle' ? 'Drag mode' : 'Tap mode'}</span>
             </button>
           )}
-          <SettingsMenu />
+          <MusicMenu />
         </div>
         </div>
         <SessionProgress completed={sessionCount} total={sessionLength} />
