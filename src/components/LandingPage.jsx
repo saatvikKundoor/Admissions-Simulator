@@ -10,7 +10,7 @@
 
 import { playClick } from '../lib/sound'
 import SocialLinks from './SocialLinks'
-import SettingsMenu from './MusicMenu'
+import MusicMenu from './MusicMenu'
 
 const ICON = {
   Admitted:   '/icons/admitted.png',
@@ -61,7 +61,7 @@ export default function LandingPage({ onStart }) {
   return (
     <div className="min-h-screen bg-[#F2F0EB] paper-grain relative">
       <div className="absolute top-6 right-6 md:right-10 lg:right-16 z-10">
-        <SettingsMenu />
+        <MusicMenu />
       </div>
       <div className="max-w-6xl mx-auto px-6 md:px-10 lg:px-16 py-14 md:py-20">
 
