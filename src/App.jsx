@@ -6,36 +6,13 @@ import SessionProgress from './components/SessionProgress'
 import ProfileCard from './components/ProfileCard'
 import RevealScreen from './components/RevealScreen'
 import SessionEnd from './components/SessionEnd'
-import { isSoundEnabled, setSoundEnabled, playToggleClick } from './lib/sound'
+import { playToggleClick } from './lib/sound'
+import { initMusic } from './lib/music'
 import ProfileCardSkeleton from './components/ProfileCardSkeleton'
+import SettingsMenu from './components/SettingsMenu'
 
 
 const CYCLE = [null, 'Admitted', 'Waitlisted', 'Rejected']
-
-function Volume1Icon({ className }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-         fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-         strokeLinejoin="round" className={className}>
-      <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" />
-      <path d="M16 9a5 5 0 0 1 0 6" />
-    </svg>
-  )
-}
-
-function VolumeOffIcon({ className }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-         fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-         strokeLinejoin="round" className={className}>
-      <path d="M16 9a5 5 0 0 1 .95 2.293" />
-      <path d="M19.364 5.636a9 9 0 0 1 1.889 9.96" />
-      <path d="m2 2 20 20" />
-      <path d="m7 7-.587.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298V11" />
-      <path d="M9.828 4.172A.686.686 0 0 1 11 4.657v.686" />
-    </svg>
-  )
-}
 
 function scoreGuesses(schools, guesses) {
   let correct = 0
@@ -69,7 +46,6 @@ export default function App() {
   const [guessMode, setGuessMode]         = useState(
     () => localStorage.getItem('guessMode') ?? 'cycle'
   )
-  const [soundOn, setSoundOn]             = useState(() => isSoundEnabled())
   const [profileStartTime, setProfileStartTime] = useState(null)
   const [roundElapsedMs, setRoundElapsedMs]     = useState(0)
   const [sessionCorrect, setSessionCorrect] = useState(0)
@@ -111,6 +87,13 @@ export default function App() {
     setLoading(false)
   }, [])
 
+  // Start background music once, on mount — plays through landing, the
+  // whole session, and session end. Safe to call more than once (see
+  // music.js), so this doesn't need to be gated behind gameStarted.
+  useEffect(() => {
+    initMusic()
+  }, [])
+
   // Fetch first profile once game starts
   useEffect(() => {
     if (gameStarted) fetchRandomProfile([])
@@ -133,15 +116,6 @@ export default function App() {
     setGuessMode(prev => {
       const next = prev === 'cycle' ? 'drag' : 'cycle'
       localStorage.setItem('guessMode', next)
-      return next
-    })
-  }
-
-  function toggleSound() {
-    playToggleClick()
-    setSoundOn(prev => {
-      const next = !prev
-      setSoundEnabled(next)
       return next
     })
   }
@@ -250,20 +224,8 @@ export default function App() {
             Admissions Simulator
           </h1>
         </div>
-        {!submitted && (
-          <div className="flex items-center gap-2 mt-2 shrink-0">
-            <button
-              onClick={toggleSound}
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}
-              className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white
-                         text-xs text-slate-600 hover:bg-slate-50 transition-colors
-                         inline-flex items-center gap-1.5"
-            >
-              {soundOn
-                ? <Volume1Icon className="w-4 h-4" />
-                : <VolumeOffIcon className="w-4 h-4" />}
-              <span>{soundOn ? 'Sound on' : 'Sound off'}</span>
-            </button>
+        <div className="flex items-center gap-2 mt-2 shrink-0">
+          {!submitted && (
             <button
               onClick={toggleMode}
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -319,8 +281,9 @@ export default function App() {
               </span>
               <span>{guessMode === 'cycle' ? 'Drag mode' : 'Tap mode'}</span>
             </button>
-          </div>
-        )}
+          )}
+          <SettingsMenu />
+        </div>
         </div>
         <SessionProgress completed={sessionCount} total={sessionLength} />
       </header>

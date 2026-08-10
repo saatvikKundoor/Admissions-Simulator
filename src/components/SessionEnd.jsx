@@ -1,6 +1,7 @@
 // SessionEnd.jsx
 import { useEffect, useState } from 'react'
 import { playCelebration, playConsolation, playClick, playToggleClick } from '../lib/sound'
+import SettingsMenu from './SettingsMenu'
 
 function HomeIcon({ className }) {
   return (
@@ -146,8 +147,12 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain, 
     return () => cancelAnimationFrame(raf)
   }, [mainDone, pct, correct, profileCount])
 
-  return (
+ return (
     <div className="max-w-4xl w-full relative">
+
+      <div className="absolute top-0 right-0 z-10">
+        <SettingsMenu />
+      </div>
       
       {/* High Score Celebration: Acceptance Paper Confetti */}
       {pct >= 75 && mainDone && (

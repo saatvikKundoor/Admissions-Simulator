@@ -1,17 +1,20 @@
 // sound.js
 // Tiny, dependency-free sound effects synthesized with the Web Audio API.
 // No audio files to fetch or ship — everything here is generated at
-// playback time. Five effects:
+// playback time. Five effect families:
 //   - playStamp()       — a percussive "thud" for a prediction/decision moment
 //   - playPickup()      — a soft paper "whoosh" for picking up a drag chip
 //   - playReveal()       — a card-flip flourish for each reveal-screen row
 //   - playCelebration() — a bright ascending chime when a high session score lands
 //   - playConsolation() — a soft, muted thud when a low session score lands
 //
-// All effects check the shared, localStorage-backed mute setting internally,
-// so any component can call them directly without re-checking first.
+// SFX volume is a float (0..1) persisted to localStorage. Every effect
+// reads it fresh each call and scales its peak/attack gain values by it —
+// near-zero decay targets are left alone since they're inaudible
+// regardless of volume. A volume of 0 behaves like the old "sound off".
 
-const STORAGE_KEY = 'soundEnabled'
+const STORAGE_KEY_VOLUME = 'sfxVolume'
+const DEFAULT_VOLUME = 0.7
 
 let lastHoverTime = 0
 const HOVER_THROTTLE_MS = 200
@@ -30,36 +33,35 @@ function jitter(value, amount = 0.08) {
   return value * (1 + (Math.random() * 2 - 1) * amount)
 }
 
-export function isSoundEnabled() {
-  if (typeof window === 'undefined') return true
-  const stored = localStorage.getItem(STORAGE_KEY)
-  return stored === null ? true : stored === 'true'
+export function getSfxVolume() {
+  if (typeof window === 'undefined') return DEFAULT_VOLUME
+  const stored = localStorage.getItem(STORAGE_KEY_VOLUME)
+  return stored === null ? DEFAULT_VOLUME : Number(stored)
 }
 
-export function setSoundEnabled(enabled) {
+export function setSfxVolume(value) {
   if (typeof window === 'undefined') return
-  localStorage.setItem(STORAGE_KEY, String(enabled))
+  const clamped = Math.min(1, Math.max(0, value))
+  localStorage.setItem(STORAGE_KEY_VOLUME, String(clamped))
 }
 
 export function playStamp() {
-  if (!isSoundEnabled()) return
+  const volume = getSfxVolume()
+  if (volume <= 0) return
   const audioCtx = getContext()
   if (!audioCtx) return
   const now = audioCtx.currentTime
 
-  // 1. Low percussive thud (Body)
   const osc = audioCtx.createOscillator()
   const gain = audioCtx.createGain()
-  
+
   osc.type = 'sine'
   osc.frequency.setValueAtTime(jitter(190), now)
   osc.frequency.exponentialRampToValueAtTime(jitter(55), now + 0.13)
 
-  const peakGain = jitter(0.3, 0.12)
-  // Micro-attack (0 -> peak in 3ms) prevents initial digital click
+  const peakGain = jitter(0.3, 0.12) * volume
   gain.gain.setValueAtTime(0, now)
   gain.gain.linearRampToValueAtTime(peakGain, now + 0.003)
-  // Smooth decay to near-zero before stopping
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.17)
 
   osc.connect(gain)
@@ -67,33 +69,32 @@ export function playStamp() {
   osc.start(now)
   osc.stop(now + 0.18)
 
-  // 2. Short noise burst (Snap/Texture)
   const bufferSize = Math.floor(audioCtx.sampleRate * 0.025)
   const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
   const data = buffer.getChannelData(0)
-  
+
   for (let i = 0; i < bufferSize; i++) {
     data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize)
   }
-  
+
   const noise = audioCtx.createBufferSource()
   noise.buffer = buffer
 
   const noiseGain = audioCtx.createGain()
-  // Micro-attack and smooth fade-out for the noise layer as well
   noiseGain.gain.setValueAtTime(0, now)
-  noiseGain.gain.linearRampToValueAtTime(0.18, now + 0.002)
+  noiseGain.gain.linearRampToValueAtTime(0.18 * volume, now + 0.002)
   noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.025)
 
   noise.connect(noiseGain)
   noiseGain.connect(audioCtx.destination)
 
   noise.start(now)
-  noise.stop(now + 0.026) // Cleanly end buffer playout
+  noise.stop(now + 0.026)
 }
 
 export function playPickup() {
-  if (!isSoundEnabled()) return
+  const volume = getSfxVolume()
+  if (volume <= 0) return
   const audioCtx = getContext()
   if (!audioCtx) return
   const now = audioCtx.currentTime
@@ -115,7 +116,7 @@ export function playPickup() {
 
   const gain = audioCtx.createGain()
   gain.gain.setValueAtTime(0.001, now)
-  gain.gain.linearRampToValueAtTime(0.12, now + 0.03)
+  gain.gain.linearRampToValueAtTime(0.12 * volume, now + 0.03)
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15)
 
   noise.connect(filter)
@@ -125,14 +126,9 @@ export function playPickup() {
 }
 
 // A soft, subtle click for hover-enter feedback on school rows/chips.
-// Deliberately quieter and shorter than playStamp/playPickup since this
-// fires far more often — every mouse pass over a row — and must never
-// announce itself the way a deliberate action (tap, drag, submit) does.
 export function playHover() {
-  if (!isSoundEnabled()) return
-  // Throttle rapid-fire hovers (e.g. sweeping the mouse down the list) so
-  // they don't stack into an overlapping "rattle" — only the first hover
-  // in a burst plays, subsequent ones within the window are dropped.
+  const volume = getSfxVolume()
+  if (volume <= 0) return
   const nowMs = Date.now()
   if (nowMs - lastHoverTime < HOVER_THROTTLE_MS) return
   lastHoverTime = nowMs
@@ -157,7 +153,7 @@ export function playHover() {
 
   const gain = audioCtx.createGain()
   gain.gain.setValueAtTime(0.001, now)
-  gain.gain.linearRampToValueAtTime(jitter(0.09, 0.15), now + 0.004)
+  gain.gain.linearRampToValueAtTime(jitter(0.09, 0.15) * volume, now + 0.004)
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03)
 
   noise.connect(filter)
@@ -166,20 +162,14 @@ export function playHover() {
   noise.start(now)
 }
 
-// A bright, short confirm click for primary CTAs — Start Game, Begin,
-// Submit Guesses, Next Applicant, Play Again. Two layers: a crisp
-// high-frequency transient for the "snap," and a brief tonal body
-// underneath so it reads as a deliberate confirmation rather than a
-// bare tap. Sits well clear of playStamp (low thud) and playHover
-// (quiet, higher, much shorter) in both register and duration.
+// A bright, short confirm click for primary CTAs.
 export function playClick() {
-  if (!isSoundEnabled()) return
+  const volume = getSfxVolume()
+  if (volume <= 0) return
   const audioCtx = getContext()
   if (!audioCtx) return
   const now = audioCtx.currentTime
 
-  // Soft paper-flick texture — bandpass noise, much duller than a
-  // mechanical click, short enough to read as a tap rather than a hiss
   const bufferSize = Math.floor(audioCtx.sampleRate * 0.02)
   const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
   const data = buffer.getChannelData(0)
@@ -193,22 +183,19 @@ export function playClick() {
   noiseFilter.frequency.setValueAtTime(jitter(1100), now)
   noiseFilter.Q.value = 0.9
   const noiseGain = audioCtx.createGain()
-  noiseGain.gain.setValueAtTime(jitter(0.1, 0.15), now)
+  noiseGain.gain.setValueAtTime(jitter(0.1, 0.15) * volume, now)
   noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03)
   noise.connect(noiseFilter)
   noiseFilter.connect(noiseGain)
   noiseGain.connect(audioCtx.destination)
   noise.start(now)
 
-  // Soft sine thump underneath — same family as playStamp's body but
-  // pitched noticeably higher and decaying much faster, so it reads as a
-  // light tap rather than a heavy stamp landing
   const osc = audioCtx.createOscillator()
   const gain = audioCtx.createGain()
   osc.type = 'sine'
   osc.frequency.setValueAtTime(jitter(340), now)
   osc.frequency.exponentialRampToValueAtTime(jitter(200), now + 0.06)
-  gain.gain.setValueAtTime(jitter(0.2, 0.12), now)
+  gain.gain.setValueAtTime(jitter(0.2, 0.12) * volume, now)
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07)
   osc.connect(gain)
   gain.connect(audioCtx.destination)
@@ -216,12 +203,10 @@ export function playClick() {
   osc.stop(now + 0.07)
 }
 
-// A quieter, drier click for secondary/toggle actions — sound toggle,
-// mode toggle, modal close, End Session, Home. Deliberately lower-pitched
-// and shorter than playClick so the hierarchy between "confirming
-// something" and "flipping a switch" is audible, not just visual.
+// A quieter, drier click for secondary/toggle actions.
 export function playToggleClick() {
-  if (!isSoundEnabled()) return
+  const volume = getSfxVolume()
+  if (volume <= 0) return
   const audioCtx = getContext()
   if (!audioCtx) return
   const now = audioCtx.currentTime
@@ -239,7 +224,7 @@ export function playToggleClick() {
   filter.frequency.setValueAtTime(jitter(1300), now)
   filter.Q.value = 1.4
   const gain = audioCtx.createGain()
-  gain.gain.setValueAtTime(jitter(0.08, 0.15), now)
+  gain.gain.setValueAtTime(jitter(0.08, 0.15) * volume, now)
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025)
   noise.connect(filter)
   filter.connect(gain)
@@ -247,18 +232,14 @@ export function playToggleClick() {
   noise.start(now)
 }
 
-// A card-flip sound — a short burst of noise swept from high to low frequency
-// (the rustle of the card turning through the air), followed by a bright
-// snap right as it settles (the card landing flat). Distinct from the deep
-// stamp thud so a run of reveals feels like cards turning, not repeated hits.
+// A card-flip sound for reveal-screen rows.
 export function playReveal() {
-  if (!isSoundEnabled()) return
+  const volume = getSfxVolume()
+  if (volume <= 0) return
   const audioCtx = getContext()
   if (!audioCtx) return
   const now = audioCtx.currentTime
 
-  // Layer 1 — the flip: filtered noise swept from high to low frequency,
-  // like a card rotating through the air
   const flipDuration = 0.09
   const bufferSize = Math.floor(audioCtx.sampleRate * flipDuration)
   const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
@@ -277,7 +258,7 @@ export function playReveal() {
 
   const gain = audioCtx.createGain()
   gain.gain.setValueAtTime(0.001, now)
-  gain.gain.linearRampToValueAtTime(0.22, now + 0.015)
+  gain.gain.linearRampToValueAtTime(0.22 * volume, now + 0.015)
   gain.gain.exponentialRampToValueAtTime(0.001, now + flipDuration)
 
   noise.connect(filter)
@@ -285,13 +266,12 @@ export function playReveal() {
   gain.connect(audioCtx.destination)
   noise.start(now)
 
-  // Layer 2 — the landing: a short, bright snap right as the flip settles
   const snapStart = now + flipDuration - 0.01
   const snap = audioCtx.createOscillator()
   const snapGain = audioCtx.createGain()
   snap.type = 'triangle'
   snap.frequency.setValueAtTime(1800, snapStart)
-  snapGain.gain.setValueAtTime(0.12, snapStart)
+  snapGain.gain.setValueAtTime(0.12 * volume, snapStart)
   snapGain.gain.exponentialRampToValueAtTime(0.001, snapStart + 0.03)
   snap.connect(snapGain)
   snapGain.connect(audioCtx.destination)
@@ -299,10 +279,10 @@ export function playReveal() {
   snap.stop(snapStart + 0.03)
 }
 
-// A bright, three-note ascending chime — the celebratory flourish when a
-// high session score lands.
+// A bright, three-note ascending chime for a high session score.
 export function playCelebration() {
-  if (!isSoundEnabled()) return
+  const volume = getSfxVolume()
+  if (volume <= 0) return
   const audioCtx = getContext()
   if (!audioCtx) return
   const now = audioCtx.currentTime
@@ -315,7 +295,7 @@ export function playCelebration() {
     osc.type = 'triangle'
     osc.frequency.setValueAtTime(freq, start)
     gain.gain.setValueAtTime(0.001, start)
-    gain.gain.linearRampToValueAtTime(0.18, start + 0.02)
+    gain.gain.linearRampToValueAtTime(0.18 * volume, start + 0.02)
     gain.gain.exponentialRampToValueAtTime(0.001, start + 0.3)
     osc.connect(gain)
     gain.connect(audioCtx.destination)
@@ -324,18 +304,10 @@ export function playCelebration() {
   })
 }
 
-// A soft, muted thud — a gentler, lower-key sibling to playStamp(), used as
-// a subdued acknowledgment when a low session score lands.
-//
-// Fix: the previous version dropped to 45 Hz on a single bare sine wave,
-// which is below (or right at the edge of) what most laptop/phone speakers
-// can actually reproduce — the sound was firing correctly but was
-// effectively inaudible. This keeps the same "soft, low, muted" character
-// but raises the floor above the typical speaker rolloff and adds a very
-// short, quiet noise layer (much quieter than playStamp's) so there's some
-// audible transient even where the sine tone itself is faint.
+// A soft, muted thud for a low session score.
 export function playConsolation() {
-  if (!isSoundEnabled()) return
+  const volume = getSfxVolume()
+  if (volume <= 0) return
   const audioCtx = getContext()
   if (!audioCtx) return
   const now = audioCtx.currentTime
@@ -345,16 +317,13 @@ export function playConsolation() {
   osc.type = 'sine'
   osc.frequency.setValueAtTime(220, now)
   osc.frequency.exponentialRampToValueAtTime(90, now + 0.26)
-  gain.gain.setValueAtTime(0.22, now)
+  gain.gain.setValueAtTime(0.22 * volume, now)
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32)
   osc.connect(gain)
   gain.connect(audioCtx.destination)
   osc.start(now)
   osc.stop(now + 0.33)
 
-  // Very quiet, short noise layer — just enough transient "thud" texture
-  // to register on small speakers, without turning this into a second
-  // playStamp().
   const bufferSize = Math.floor(audioCtx.sampleRate * 0.03)
   const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
   const data = buffer.getChannelData(0)
@@ -364,7 +333,7 @@ export function playConsolation() {
   const noise = audioCtx.createBufferSource()
   noise.buffer = buffer
   const noiseGain = audioCtx.createGain()
-  noiseGain.gain.setValueAtTime(0.06, now)
+  noiseGain.gain.setValueAtTime(0.06 * volume, now)
   noise.connect(noiseGain)
   noiseGain.connect(audioCtx.destination)
   noise.start(now)
