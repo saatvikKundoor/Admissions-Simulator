@@ -4,7 +4,7 @@
 // session (1-20, default 5). Closing via the X reveals the landing page
 // again without starting the game.
 
-import { playClick, playToggleClick } from '../lib/sound'
+import { playClick, playToggleClick, playSliderSnap } from '../lib/sound'
 
 function XIcon({ className }) {
   return (
@@ -52,7 +52,11 @@ export default function SessionSetupModal({ value, onChange, onClose, onBegin })
             max={MAX}
             step={1}
             value={value}
-            onChange={(e) => onChange(Number(e.target.value))}
+            onChange={(e) => {
+               const next = Number(e.target.value)
+               if (next !== value) playSliderSnap((next - MIN) / (MAX - MIN))
+               onChange(next)
+             }}
             style={{ accentColor: '#0f172a' }}
             className="w-full h-2 cursor-pointer"
           />
