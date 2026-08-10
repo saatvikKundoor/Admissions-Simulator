@@ -10,7 +10,7 @@
 
 import { playClick } from '../lib/sound'
 import SocialLinks from './SocialLinks'
-import SettingsMenu from './SettingsMenu'
+import SettingsMenu from './MusicMenu'
 
 const ICON = {
   Admitted:   '/icons/admitted.png',
