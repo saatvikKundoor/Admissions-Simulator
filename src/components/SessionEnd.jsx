@@ -1,7 +1,7 @@
 // SessionEnd.jsx
 import { useEffect, useState } from 'react'
 import { playCelebration, playConsolation, playClick, playToggleClick } from '../lib/sound'
-import SettingsMenu from './MusicMenu'
+import MusicMenu from './MusicMenu'
 
 function HomeIcon({ className }) {
   return (
