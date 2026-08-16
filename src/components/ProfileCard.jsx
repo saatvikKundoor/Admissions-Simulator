@@ -266,7 +266,7 @@ export default function ProfileCard({
             <StatRow label="Unweighted GPA"  value={str(profile.gpa_unweighted)} />
             <StatRow label="Weighted GPA"    value={str(profile.gpa_weighted)} />
             {profile.class_rank && <StatRow label="Class Rank"    value={str(profile.class_rank)} />}
-            <StatRow label="AP/IB/DE Courses"      value={str(profile.ap_ib_count)} />
+            <StatRow label="AP/IB/DE Courses"      value={str(profile.ap_ib_de_count)} />
           </div>
         </SectionCard>
 

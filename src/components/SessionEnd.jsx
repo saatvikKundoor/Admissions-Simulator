@@ -56,7 +56,7 @@ function StatCard({ label, value, color, delay, trigger }) {
   )
 }
 
-export default function SessionEnd({ correct, total, profileCount, onPlayAgain, onHome }) {
+export default function SessionEnd({ correct, total, profileCount, onPlayAgain, onHome, onSubmitProfile }) {
   const pct = total > 0 ? Math.round((correct / total) * 100) : 0
 
   // Phase 1 — big score count-up
@@ -150,8 +150,8 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain, 
  return (
     <div className="max-w-4xl w-full relative">
 
-      <div className="absolute top-0 right-0 z-10">
-        <SettingsMenu />
+      <div className="absolute top-0 right-0 z-[60]">
+        <MusicMenu />
       </div>
       
       {/* High Score Celebration: Acceptance Paper Confetti */}
@@ -213,25 +213,35 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain, 
         <StatCard label="Applicants" value={applicantsDisplay}   color="sky"      delay="240ms" trigger={mainDone} />
       </div>
 
-      <div className={`flex justify-end items-center gap-3 transition-opacity duration-500 ${
+      <div className={`flex justify-between items-center gap-3 transition-opacity duration-500 ${
         statsDone ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}>
         <button
-          onClick={() => { playToggleClick(); onHome() }}
-          aria-label="Return to home"
-          className="p-3.5 rounded-xl transition-colors
-                     border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+          onClick={onSubmitProfile}
+          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          className="text-sm text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors"
         >
-          <HomeIcon className="w-5 h-5" />
+          Submit a profile of your own →
         </button>
-        <button
-          onClick={() => { playClick(); onPlayAgain() }}
-          style={{ fontFamily: "'Inter', sans-serif" }}
-          className="px-10 py-4 rounded-xl font-semibold text-base tracking-wide
-                     bg-slate-900 text-white hover:bg-slate-700 transition-colors shadow-md"
-        >
-          Play Again →
-        </button>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={() => { playToggleClick(); onHome() }}
+            aria-label="Return to home"
+            className="p-3.5 rounded-xl transition-colors
+                       border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+          >
+            <HomeIcon className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => { playClick(); onPlayAgain() }}
+            style={{ fontFamily: "'Inter', sans-serif" }}
+            className="px-10 py-4 rounded-xl font-semibold text-base tracking-wide
+                       bg-slate-900 text-white hover:bg-slate-700 transition-colors shadow-md"
+          >
+            Play Again →
+          </button>
+        </div>
       </div>
     </div>
   )

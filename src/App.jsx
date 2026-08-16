@@ -10,6 +10,7 @@ import { playToggleClick } from './lib/sound'
 import { initMusic } from './lib/music'
 import ProfileCardSkeleton from './components/ProfileCardSkeleton'
 import MusicMenu from './components/MusicMenu'
+import SubmitProfileForm from './components/SubmitProfileForm'
 
 
 const CYCLE = [null, 'Admitted', 'Waitlisted', 'Rejected']
@@ -52,6 +53,7 @@ export default function App() {
   const [sessionTotal, setSessionTotal]     = useState(0)
   const [sessionCount, setSessionCount]     = useState(0)
   const [showSessionEnd, setShowSessionEnd] = useState(false)
+  const [showSubmitForm, setShowSubmitForm] = useState(false)
 
   const fetchRandomProfile = useCallback(async (currentSeenIds) => {
     setLoading(true)
@@ -170,10 +172,17 @@ export default function App() {
 
   const anyGuessed = Object.values(guesses).some(v => v !== null)
 
+  if (showSubmitForm) {
+    return <SubmitProfileForm onClose={() => setShowSubmitForm(false)} />
+  }
+
   if (!gameStarted) {
     return (
       <>
-        <LandingPage onStart={() => setShowSetupModal(true)} />
+        <LandingPage
+          onStart={() => setShowSetupModal(true)}
+          onSubmitProfile={() => setShowSubmitForm(true)}
+        />
         {showSetupModal && (
           <SessionSetupModal
             value={sessionLength}
@@ -199,6 +208,7 @@ export default function App() {
         profileCount={sessionCount}
         onPlayAgain={handlePlayAgain}
         onHome={handleGoHome}
+        onSubmitProfile={() => setShowSubmitForm(true)}
       />
     </div>
   )
