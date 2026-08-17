@@ -49,7 +49,7 @@ function TrashIcon({ className }) {
   )
 }
 
-const OUTCOMES = ['Admitted', 'Waitlisted', 'Rejected', 'Deferred']
+const OUTCOMES = ['Admitted', 'Waitlisted', 'Rejected']
 
 const fieldBase = "px-3 py-2 rounded-lg border border-black/10 bg-white/70 text-sm " +
                    "text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400"
@@ -288,43 +288,32 @@ export default function SubmitProfileForm({ onClose }) {
     setSubmitting(true)
     setError(null)
 
-    const profileId = crypto.randomUUID()
-
-    const { error: profileError } = await supabase.from('submitted_profiles').insert({
-      id: profileId,
-      state: form.state || null,
-      gender: form.gender || null,
-      race_ethnicity: form.race_ethnicity || null,
-      major_intended: form.major_intended || null,
-      first_gen: form.first_gen,
-      international: form.international,
-      sat: form.sat ? Number(form.sat) : null,
-      act: form.act ? Number(form.act) : null,
-      gpa_weighted: form.gpa_weighted ? Number(form.gpa_weighted) : null,
-      gpa_unweighted: form.gpa_unweighted ? Number(form.gpa_unweighted) : null,
-      class_rank: form.class_rank || null,
-      ap_ib_de_count: form.ap_ib_de_count ? Number(form.ap_ib_de_count) : null,
-      extracurriculars: cleanStructuredList(extracurriculars),
-      awards: cleanStructuredList(awards),
-      source_url: form.source_url || null,
-    })
-
-    if (profileError) {
-      setError(profileError.message)
-      setSubmitting(false)
-      return
-    }
-
-    const { error: schoolsError } = await supabase.from('submitted_schools').insert(
-      validSchools.map(s => ({
-        submission_id: profileId,
+    const { error: submitError } = await supabase.rpc('submit_profile_with_schools', {
+      profile_data: {
+        state: form.state || null,
+        gender: form.gender || null,
+        race_ethnicity: form.race_ethnicity || null,
+        major_intended: form.major_intended || null,
+        first_gen: form.first_gen,
+        international: form.international,
+        sat: form.sat ? Number(form.sat) : null,
+        act: form.act ? Number(form.act) : null,
+        gpa_weighted: form.gpa_weighted ? Number(form.gpa_weighted) : null,
+        gpa_unweighted: form.gpa_unweighted ? Number(form.gpa_unweighted) : null,
+        class_rank: form.class_rank || null,
+        ap_ib_de_count: form.ap_ib_de_count ? Number(form.ap_ib_de_count) : null,
+        extracurriculars: cleanStructuredList(extracurriculars),
+        awards: cleanStructuredList(awards),
+        source_url: form.source_url || null,
+      },
+      schools_data: validSchools.map(s => ({
         school_name: s.school_name.trim(),
         outcome: s.outcome,
-      }))
-    )
+      })),
+    })
 
-    if (schoolsError) {
-      setError(schoolsError.message)
+    if (submitError) {
+      setError(submitError.message)
       setSubmitting(false)
       return
     }
