@@ -11,6 +11,14 @@ import { initMusic } from './lib/music'
 import ProfileCardSkeleton from './components/ProfileCardSkeleton'
 import MusicMenu from './components/MusicMenu'
 import SubmitProfileForm from './components/SubmitProfileForm'
+import {
+   trackStartGameClick,
+   trackGameSessionStart,
+   trackLevelStart,
+   trackLevelEnd,
+   trackPostScore,
+   trackGameSessionComplete,
+ } from './lib/analytics'
 
 
 const CYCLE = [null, 'Admitted', 'Waitlisted', 'Rejected']
@@ -85,6 +93,7 @@ export default function App() {
         setProfile({ ...data, schools: shuffleArray(data.schools) })
         setSeenIds(prev => [...prev, randomId])
         setProfileStartTime(Date.now())
+        trackLevelStart(currentSeenIds.length + 1)
       }
     setLoading(false)
   }, [])
@@ -129,12 +138,23 @@ export default function App() {
 
   function handleNext() {
     const round = scoreGuesses(profile.schools, guesses)
+    const roundNumber = sessionCount + 1
+    trackLevelEnd(roundNumber, round, profile.schools.length)
+    trackPostScore(roundNumber, round)
+
+
     setSessionCorrect(c => c + round)
     setSessionTotal(t => t + profile.schools.length)
 
     const next = sessionCount + 1
     setSessionCount(next)
     if (next >= sessionLength) {
+      trackGameSessionComplete({
+        correct: sessionCorrect + round,
+        total: sessionTotal + profile.schools.length,
+        profileCount: next,
+        endedEarly: false,
+      })
       setShowSessionEnd(true)
     } else {
       fetchRandomProfile(seenIds)
@@ -146,9 +166,19 @@ export default function App() {
   // straight to the session summary.
   function handleEndSession() {
     const round = scoreGuesses(profile.schools, guesses)
+    const roundNumber = sessionCount + 1
+    trackLevelEnd(roundNumber, round, profile.schools.length)
+    trackPostScore(roundNumber, round)
+
     setSessionCorrect(c => c + round)
     setSessionTotal(t => t + profile.schools.length)
     setSessionCount(c => c + 1)
+    trackGameSessionComplete({
+      correct: sessionCorrect + round,
+      total: sessionTotal + profile.schools.length,
+      profileCount: sessionCount + 1,
+      endedEarly: true,
+    })
     setShowSessionEnd(true)
   }
 
@@ -180,7 +210,7 @@ export default function App() {
     return (
       <>
         <LandingPage
-          onStart={() => setShowSetupModal(true)}
+          onStart={() => { trackStartGameClick(); setShowSetupModal(true) }}
           onSubmitProfile={() => setShowSubmitForm(true)}
         />
         {showSetupModal && (
@@ -193,6 +223,7 @@ export default function App() {
               localStorage.setItem('sessionLength', String(n))
               setShowSetupModal(false)
               setGameStarted(true)
+              trackGameSessionStart(n)
             }}
           />
         )}
