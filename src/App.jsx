@@ -262,7 +262,7 @@ export default function App() {
         <div>
           <h1 style={{ fontFamily: "'Playfair Display', serif" }}
               className="text-4xl font-semibold text-slate-900 tracking-tight">
-            Admissions Partner
+            Admissions Simulator
           </h1>
         </div>
         <div className="flex items-center gap-2 mt-2 shrink-0">
