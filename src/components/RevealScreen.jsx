@@ -3,6 +3,18 @@
 
 import { useEffect, useState } from 'react'
 import { playReveal, playClick, playToggleClick } from '../lib/sound'
+import ProfileReviewModal from './ProfileReviewModal'
+
+function SearchIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+         strokeLinejoin="round" className={className}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.35-4.35" />
+    </svg>
+  )
+}
 
 const OUTCOME_STYLE = {
   Admitted:   { bg: 'bg-green-100',  border: 'border-green-300',  text: 'text-green-800'  },
@@ -72,6 +84,7 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
   const [visibleCount, setVisibleCount] = useState(0)
   const [countDisplay, setCountDisplay] = useState(0)
   const [countDone, setCountDone] = useState(false)
+  const [showReview, setShowReview] = useState(false)
 
   const correct = scoreGuesses(schools, guesses)
   const total   = schools.length
@@ -217,7 +230,18 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
       {/* Last round: only a forward path to the session summary exists, so
           show a single "Session Results" button. Otherwise, Next Applicant
           (primary) + End Session (secondary, lower-emphasis, early-exit). */}
-      <div className={`flex justify-end items-center gap-3 transition-opacity duration-500 ${allRevealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`flex justify-between items-center gap-3 transition-opacity duration-500 ${allRevealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <button
+          onClick={() => { playToggleClick(); setShowReview(true) }}
+          style={{ fontFamily: "'Inter', sans-serif" }}
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm tracking-wide
+                     bg-[#C8E6E2] text-slate-800 hover:bg-[#b8dcd7] transition-colors"
+        >
+          <SearchIcon className="w-4 h-4" />
+          Check Profile
+        </button>
+
+        <div className="flex items-center gap-3">
         {isLastRound ? (
           <button
             onClick={() => { playClick(); onNext() }}
@@ -247,7 +271,12 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
             </button>
           </>
         )}
+        </div>
       </div>
+
+      {showReview && (
+        <ProfileReviewModal profile={profile} onClose={() => { playToggleClick(); setShowReview(false) }} />
+      )}
     </div>
   )
 }
