@@ -238,7 +238,7 @@ export default function ProfileCard({
         <SectionCard title="Demographics" color="teal">
           <div className="grid grid-cols-2 gap-x-4 gap-y-2">
             {[
-              ['State',     str(profile.state)],
+              ['Residence',     str(profile.residence)],
               ['Gender',    str(profile.gender)],
               ['Ethnicity', str(profile.race_ethnicity)],
               ['First-Gen', profile.first_gen ? 'Yes' : 'No'],
