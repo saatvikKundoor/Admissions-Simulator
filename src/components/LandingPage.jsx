@@ -90,21 +90,6 @@ export default function LandingPage({ onStart, onSubmitProfile }) {
               admitted them. Then see how your read compares to reality.
             </p>
 
-            <div className="flex items-center gap-4 mb-6">
-              <button
-                onClick={() => { playClick(); onStart() }}
-                style={{ fontFamily: "'Inter', sans-serif" }}
-                className="px-10 py-4 rounded-xl font-semibold text-lg tracking-wide
-                           bg-slate-900 text-white hover:bg-slate-700 transition-colors"
-              >
-                Start Game →
-              </button>
-              <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                 className="text-slate-400 text-xs">
-                No signup or log-in required.
-              </p>
-            </div>
-
             <p style={{ fontFamily: "'Inter', sans-serif" }}
                className="text-xs text-slate-400 max-w-md">
               Profiles are anonymized from public Reddit posts.
@@ -138,6 +123,28 @@ export default function LandingPage({ onStart, onSubmitProfile }) {
             </div>
           </div>
         </div>
+
+        {/* ── Action row: Start Game on the left, room reserved on the
+            right for other game-mode entry points ── */}
+        <div className="flex items-center justify-between gap-6 mb-14">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => { playClick(); onStart() }}
+              style={{ fontFamily: "'Inter', sans-serif" }}
+              className="px-10 py-4 rounded-xl font-semibold text-lg tracking-wide
+                         bg-slate-900 text-white hover:bg-slate-700 transition-colors"
+            >
+              Start Game →
+            </button>
+            <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
+               className="text-slate-400 text-xs">
+              No signup or log-in required.
+            </p>
+          </div>
+
+          {/* Reserved for additional mode buttons */}
+          <div className="flex items-center gap-3" />
+        </div> 
 
         {/* ── Social links ── */}
          <SocialLinks />
