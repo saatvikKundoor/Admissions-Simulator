@@ -2,7 +2,7 @@
 // Shows actual outcomes vs player guesses, animated stagger, score + flavor text
 
 import { useEffect, useState } from 'react'
-import { playReveal, playClick, playToggleClick } from '../lib/sound'
+import { playReveal, playClick, playToggleClick, playCountTick } from '../lib/uiSfx'
 import ProfileReviewModal from './ProfileReviewModal'
 import CollegeInfoButton from './CollegeInfoButton'
 
@@ -105,7 +105,11 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
     function tick(now) {
       const elapsed = now - start
       const progress = Math.min(elapsed / COUNT_DURATION_MS, 1)
-      setCountDisplay(Math.round(progress * correct))
+      const next = Math.round(progress * correct)
+      setCountDisplay(prev => {
+        if (next !== prev) playCountTick()
+        return next
+      })
       if (progress < 1) {
         raf = requestAnimationFrame(tick)
       } else {

@@ -1,6 +1,6 @@
 // SessionEnd.jsx
 import { useEffect, useState } from 'react'
-import { playCelebration, playConsolation, playClick, playToggleClick } from '../lib/sound'
+import { playCelebration, playConsolation, playClick, playToggleClick, playCountTick } from '../lib/uiSfx'
 import MusicMenu from './MusicMenu'
 
 function HomeIcon({ className }) {
@@ -100,8 +100,13 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain, 
     function tick(now) {
       const elapsed  = now - start
       const progress = Math.min(elapsed / MAIN_DURATION_MS, 1)
-      setCorrectDisplay(Math.round(progress * correct))
-      setTotalDisplay(Math.round(progress * total))
+      const nextCorrect = Math.round(progress * correct)
+      const nextTotal   = Math.round(progress * total)
+      setCorrectDisplay(prev => {
+        if (nextCorrect !== prev) playCountTick()
+        return nextCorrect
+      })
+      setTotalDisplay(nextTotal)
       
       if (progress < 1) {
         raf = requestAnimationFrame(tick)
@@ -134,7 +139,11 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain, 
     function tick(now) {
       const elapsed  = now - start
       const progress = Math.min(elapsed / STAT_DURATION_MS, 1)
-      setPctDisplay(Math.round(progress * pct))
+      const nextPct = Math.round(progress * pct)
+      setPctDisplay(prev => {
+        if (nextPct !== prev) playCountTick()
+        return nextPct
+      })
       setCorrectStatDisplay(Math.round(progress * correct))
       setApplicantsDisplay(Math.round(progress * profileCount))
       if (progress < 1) {

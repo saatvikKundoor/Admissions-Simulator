@@ -1,5 +1,5 @@
 // SocialLinks.jsx
-import { playToggleClick, playHover } from '../lib/sound'
+import { playToggleClick, playHover } from '../lib/uiSfx'
 
 const SOCIALS = [
   {
