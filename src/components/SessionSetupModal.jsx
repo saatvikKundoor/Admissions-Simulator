@@ -4,7 +4,7 @@
 // session (1-20, default 5). Closing via the X reveals the landing page
 // again without starting the game.
 
-import { playClick, playToggleClick, playSliderSnap } from '../lib/sound'
+import { playClick, playToggleClick, playSliderSnap } from '../lib/uiSfx'
 
 function XIcon({ className }) {
   return (

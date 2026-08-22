@@ -6,7 +6,8 @@ import SessionProgress from './components/SessionProgress'
 import ProfileCard from './components/ProfileCard'
 import RevealScreen from './components/RevealScreen'
 import SessionEnd from './components/SessionEnd'
-import { playToggleClick } from './lib/sound'
+import { playToggleClick } from './lib/uiSfx'
+import { startLoadingLoop, stopLoadingLoop } from './lib/uiSfx'
 import { initMusic } from './lib/music'
 import ProfileCardSkeleton from './components/ProfileCardSkeleton'
 import MusicMenu from './components/MusicMenu'
@@ -104,6 +105,18 @@ export default function App() {
   useEffect(() => {
     initMusic()
   }, [])
+
+  // Loading loop: on while a profile is actually in flight from Supabase,
+  // off the moment it resolves (success or error) or the component leaves
+  // that state — the only ongoing-process sound in the game.
+  useEffect(() => {
+    if (loading) {
+      startLoadingLoop()
+    } else {
+      stopLoadingLoop()
+    }
+    return () => stopLoadingLoop()
+  }, [loading])
 
   // Fetch first profile once game starts
   useEffect(() => {

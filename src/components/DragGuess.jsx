@@ -10,7 +10,7 @@ import {
   useDroppable,
   useDraggable,
 } from '@dnd-kit/core'
-import { playPickup, playStamp, playHover } from '../lib/sound'
+import { playPickup, playStamp, playHover } from '../lib/uiSfx'
 import CollegeInfoButton from './CollegeInfoButton'
 
 const COLUMNS = ['Admitted', 'Waitlisted', 'Rejected']

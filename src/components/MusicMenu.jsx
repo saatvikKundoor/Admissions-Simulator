@@ -6,7 +6,7 @@
 // adjusted from any screen.
 
 import { useEffect, useRef, useState } from 'react'
-import { getSfxVolume, setSfxVolume, playToggleClick, playSliderTick } from '../lib/sound'
+import { getSfxVolume, setSfxVolume, playToggleClick, playSliderTick } from '../lib/uiSfx'
 import { getMusicVolume, setMusicVolume } from '../lib/music'
 
 function MusicIcon({ className }) {

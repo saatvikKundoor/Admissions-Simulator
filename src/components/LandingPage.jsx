@@ -8,7 +8,7 @@
 // the landing page reads as part of the same product, not a bolted-on splash
 // screen. Fills the viewport instead of one small centered block.
 
-import { playClick } from '../lib/sound'
+import { playClick } from '../lib/uiSfx'
 import SocialLinks from './SocialLinks'
 import MusicMenu from './MusicMenu'
 

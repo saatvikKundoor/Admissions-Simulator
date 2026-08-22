@@ -6,7 +6,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { getCollegeData, matchCollege } from '../lib/collegeData'
-import { playToggleClick } from '../lib/sound'
+import { playToggleClick } from '../lib/uiSfx'
 
 function InfoIcon({ className }) {
   return (

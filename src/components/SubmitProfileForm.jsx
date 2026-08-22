@@ -14,7 +14,7 @@
 
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
-import { playClick, playToggleClick, playHover } from '../lib/sound'
+import { playClick, playToggleClick, playHover } from '../lib/uiSfx'
 
 function XIcon({ className }) {
   return (

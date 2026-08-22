@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import DragGuess from './DragGuess'
-import { playStamp, playClick, playHover } from '../lib/sound'
+import { playStamp, playClick, playHover } from '../lib/uiSfx'
 import CollegeInfoButton from './CollegeInfoButton'
 
 function str(value) {
