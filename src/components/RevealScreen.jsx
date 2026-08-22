@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react'
 import { playReveal, playClick, playToggleClick } from '../lib/sound'
 import ProfileReviewModal from './ProfileReviewModal'
+import CollegeInfoButton from './CollegeInfoButton'
 
 function SearchIcon({ className }) {
   return (
@@ -183,8 +184,9 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
                 <div className="flex items-center justify-between gap-3">
                   {/* School name + outcome */}
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold ${style.text} truncate`}>
-                      {school.school_name}
+                    <p className={`text-sm font-semibold ${style.text} flex items-center gap-1.5 min-w-0`}>
+                      <span className="truncate">{school.school_name}</span>
+                      <CollegeInfoButton schoolName={school.school_name} />
                     </p>
                     <p className={`text-xs ${style.text} opacity-75`}>{actual}</p>
                   </div>

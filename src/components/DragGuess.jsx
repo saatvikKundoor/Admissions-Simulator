@@ -11,6 +11,7 @@ import {
   useDraggable,
 } from '@dnd-kit/core'
 import { playPickup, playStamp, playHover } from '../lib/sound'
+import CollegeInfoButton from './CollegeInfoButton'
 
 const COLUMNS = ['Admitted', 'Waitlisted', 'Rejected']
 
@@ -28,14 +29,15 @@ function DraggableChip({ id, name }) {
       {...listeners}
       {...attributes}
       onMouseEnter={playHover}
-      className={`px-3 py-2 bg-white rounded-lg border border-slate-200 text-sm
+      className={`flex items-center gap-1.5 px-3 py-2 bg-white rounded-lg border border-slate-200 text-sm
                   text-slate-800 font-medium shadow-sm select-none touch-none
                   cursor-grab active:cursor-grabbing transition-all duration-150
                   ${isDragging
                     ? 'opacity-0'
                     : 'opacity-100 hover:scale-[1.03] hover:-rotate-1 hover:shadow-md'}`}
     >
-      {name}
+      <span>{name}</span>
+      <CollegeInfoButton schoolName={name} />
     </div>
   )
 }

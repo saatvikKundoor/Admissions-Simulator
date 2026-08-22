@@ -127,11 +127,11 @@ export default function MusicMenu() {
         onClick={() => { playToggleClick(); setOpen(o => !o) }}
         aria-label="Sound Settings"
         aria-expanded={open}
-        className="p-2 rounded-lg border border-slate-300 bg-white
+        className="p-2.5 rounded-lg border border-slate-300 bg-white
                    text-slate-600 hover:bg-slate-50 transition-colors
                    inline-flex items-center justify-center"
       >
-        <MusicIcon className="w-4 h-4" />
+        <MusicIcon className="w-5 h-5" />
       </button>
 
       {open && (
