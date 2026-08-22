@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import DragGuess from './DragGuess'
 import { playStamp, playClick, playHover } from '../lib/sound'
+import CollegeInfoButton from './CollegeInfoButton'
 
 function str(value) {
   if (value === null || value === undefined) return '—'
@@ -146,26 +147,28 @@ function SchoolGuessRow({ school, guess, onCycle }) {
   }
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={handleClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick() }}
       onMouseEnter={playHover}
       className={`w-full flex items-center justify-between py-2.5 px-1
                   border-b border-black/10 last:border-0 transition-colors
                   text-left cursor-pointer rounded-lg ${bg}`}
     >
-      <span className="text-sm text-slate-800 leading-snug pr-3">
-        {str(school.school_name)}
+      <span className="flex items-center gap-1.5 pr-3 min-w-0">
+        <span className="text-sm text-slate-800 leading-snug truncate">
+          {str(school.school_name)}
+        </span>
+        <CollegeInfoButton schoolName={school.school_name} />
       </span>
       {guess
-        ? <img
-            key={stampTick}
-            src={ICON[guess]}
-            alt={guess}
-            className="w-8 h-8 shrink-0 animate-[stamp-down_0.35s_ease-out]"
-          />
+        ? <img key={stampTick} src={ICON[guess]} alt={guess}
+               className="w-8 h-8 shrink-0 animate-[stamp-down_0.35s_ease-out]" />
         : <div className="w-8 h-8 shrink-0 rounded-lg border-2 border-dashed border-slate-300" />
       }
-    </button>
+    </div>
   )
 }
 
