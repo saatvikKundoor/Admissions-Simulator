@@ -5,7 +5,7 @@
 // List — the reveal screen already shows outcomes, so this is just "let me
 // re-read the file," not another guessing surface.
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 function str(value) {
   if (value === null || value === undefined) return '—'
@@ -91,10 +91,42 @@ function ECItem({ ec, index }) {
 }
 
 export default function ProfileReviewModal({ profile, onClose }) {
+
+  const modalRef = useRef(null)
+
   useEffect(() => {
+    const modalEl = modalRef.current
+    if (!modalEl) return
+
+    const focusableSelector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    const getFocusable = () => Array.from(modalEl.querySelectorAll(focusableSelector))
+
+    // Move focus into the modal the instant it mounts, instead of leaving
+    // it on whatever page element was focused before it opened.
+    getFocusable()[0]?.focus()
+
     function handleKeyDown(e) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const focusable = getFocusable()
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      // Cycle Tab/Shift+Tab within the modal instead of letting focus
+      // escape into the page behind the overlay.
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
     }
+
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [onClose])
@@ -116,7 +148,11 @@ export default function ProfileReviewModal({ profile, onClose }) {
       className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8 bg-slate-900/50 backdrop-blur-sm"
     >
       <div
+        ref={modalRef}
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Reviewing the applicant's file"
         style={{ fontFamily: "'Inter', sans-serif" }}
         className="relative bg-[#F2F0EB] rounded-2xl p-6 md:p-8 max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
       >
