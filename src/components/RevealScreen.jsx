@@ -144,7 +144,9 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
              className="text-slate-400 text-xs uppercase tracking-widest mb-1">
             Round Score
           </p>
-          <p style={{ fontFamily: "'Playfair Display', serif" }}
+          {/* aria-hidden: this number changes on every animation frame during
+              the count-up, so it must not be read aloud tick-by-tick. */}
+          <p aria-hidden="true" style={{ fontFamily: "'Playfair Display', serif" }}
              className="text-white text-4xl font-semibold mb-1">
             {countDisplay} / {total}
           </p>
@@ -152,6 +154,11 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
             countDone ? 'opacity-100' : 'opacity-0'
           }`}>
             {flavorText(pct)}
+          </p>
+          {/* Screen-reader-only announcement — fires once, when the count-up
+              settles, instead of narrating every intermediate tick. */}
+          <p aria-live="polite" className="sr-only">
+            {countDone ? `Round score: ${correct} out of ${total} correct. ${flavorText(pct)}` : ''}
           </p>
           {formatDuration(elapsedMs) && (
             <p style={{ fontFamily: "'JetBrains Mono', monospace" }}

@@ -35,3 +35,32 @@
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
               opacity 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+/* Fix 1 — visible keyboard focus indicator.
+   Covers real <button>/<a>/<input> elements AND custom role="button"
+   elements like SchoolGuessRow, which are keyboard-operable via
+   tabIndex={0} but currently have no visible focus state. */
+:focus-visible {
+  outline: 3px solid #0f172a;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Fix 2 — respect prefers-reduced-motion.
+   Neutralizes all CSS animations/transitions site-wide: stamp-down,
+   confetti-fall, mode-toggle-transition, and Tailwind's inline
+   animate-[stamp-down_0.35s_ease-out] utilities used in ProfileCard,
+   RevealScreen, and DragGuess. This is the standard blanket override —
+   safer than trying to target each animation class individually, since
+   several are generated as arbitrary-value Tailwind classes that are
+   awkward to re-select in plain CSS. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
