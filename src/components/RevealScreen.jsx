@@ -243,7 +243,7 @@ export default function RevealScreen({ profile, guesses, onNext, onEndSession, e
       {/* Last round: only a forward path to the session summary exists, so
           show a single "Session Results" button. Otherwise, Next Applicant
           (primary) + End Session (secondary, lower-emphasis, early-exit). */}
-      <div className={`flex justify-between items-center gap-3 transition-opacity duration-500 ${allRevealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`flex flex-col sm:flex-row sm:justify-between items-stretch sm:items-center gap-3 transition-opacity duration-500 ${allRevealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <button
           onClick={() => { playToggleClick(); setShowReview(true) }}
           style={{ fontFamily: "'Inter', sans-serif" }}

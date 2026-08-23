@@ -92,7 +92,7 @@ export default function CollegeInfoButton({ schoolName, className = '' }) {
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
           className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2
-                     w-60 bg-white rounded-xl border border-slate-200 shadow-lg p-4"
+           w-60 max-w-[85vw] bg-white rounded-xl border border-slate-200 shadow-lg p-4"
         >
           <p style={{ fontFamily: "'Playfair Display', serif" }}
              className="text-sm font-semibold text-slate-900 mb-1.5 leading-snug">

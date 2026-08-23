@@ -293,10 +293,10 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F2F0EB]  ">
       <header className="px-6 md:px-10 lg:px-16 pt-10 pb-6">
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
           <h1 style={{ fontFamily: "'Playfair Display', serif" }}
-              className="text-4xl font-semibold text-slate-900 tracking-tight">
+              className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight">
             Admissions Simulator
           </h1>
         </div>
