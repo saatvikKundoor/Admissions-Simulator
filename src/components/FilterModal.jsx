@@ -4,9 +4,9 @@
 // closing without hitting Apply doesn't change anything. Filters aren't
 // persisted to localStorage — they reset on every visit, by design.
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getFilterData, getMatchingProfileIds, DEFAULT_FILTERS } from '../lib/filterData'
-import { playClick, playToggleClick } from '../lib/uiSfx'
+import { playToggleClick } from '../lib/uiSfx'
 
 function XIcon({ className }) {
   return (
@@ -105,6 +105,7 @@ function RangeSection({ title, color, min, max, step, minValue, maxValue, onMinC
   )
 }
 
+
 export default function FilterModal({ filters, onChange, onClose }) {
   const [draft, setDraft] = useState(filters)
   const [filterData, setFilterData] = useState(null)
@@ -115,11 +116,18 @@ export default function FilterModal({ filters, onChange, onClose }) {
     return () => { cancelled = true }
   }, [])
 
+  // Every close path (X, backdrop, Escape) saves the current draft — there's
+  // no separate Apply step, so leaving the popup is what commits filters.
+  function requestClose() {
+    onChange(draft)
+    onClose()
+  }
+
   useEffect(() => {
-    function handleKeyDown(e) { if (e.key === 'Escape') onClose() }
+    function handleKeyDown(e) { if (e.key === 'Escape') requestClose() }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [onClose])
+  }, [draft])
 
   const matchCount = filterData ? getMatchingProfileIds(filterData, draft).length : null
 
@@ -136,17 +144,11 @@ export default function FilterModal({ filters, onChange, onClose }) {
     setDraft(DEFAULT_FILTERS)
   }
 
-  function handleApply() {
-    playClick()
-    onChange(draft)
-    onClose()
-  }
-
   return (
-    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8 bg-slate-900/50 backdrop-blur-sm">
+    <div onClick={requestClose} className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8 bg-slate-900/50 backdrop-blur-sm">
       <div onClick={(e) => e.stopPropagation()}
            className="relative bg-[#F2F0EB] rounded-2xl p-6 md:p-8 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl">
-        <button onClick={onClose} aria-label="Close"
+        <button onClick={requestClose} aria-label="Close"
                 className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors z-10">
           <XIcon className="w-5 h-5" />
         </button>
@@ -196,29 +198,16 @@ export default function FilterModal({ filters, onChange, onClose }) {
             </div>
           </div>
         )}
-
         <div className="mt-8 flex items-center justify-between gap-4">
-          <div>
-            <button onClick={handleClear} style={{ fontFamily: "'JetBrains Mono', monospace" }}
-                    className="text-xs text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors">
-              Clear all
-            </button>
-            {filterData && (
-              <p className="text-xs text-slate-500 mt-1">
-                {matchCount} applicant{matchCount !== 1 ? 's' : ''} match{matchCount === 1 ? 'es' : ''}
-              </p>
-            )}
-          </div>
-          <button
-            onClick={handleApply}
-            disabled={matchCount === 0}
-            style={{ fontFamily: "'Inter', sans-serif" }}
-            className="px-8 py-3 rounded-xl font-semibold text-sm tracking-wide transition-colors
-                       bg-slate-900 text-white hover:bg-slate-700
-                       disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed shrink-0"
-          >
-            Apply Filters
+          <button onClick={handleClear} style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                  className="text-xs text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors">
+            Clear all
           </button>
+          {filterData && (
+            <p style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-xs text-slate-500">
+              {matchCount} applicant{matchCount !== 1 ? 's' : ''} match{matchCount === 1 ? 'es' : ''}
+            </p>
+          )}
         </div>
       </div>
     </div>
