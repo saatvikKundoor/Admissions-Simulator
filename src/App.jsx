@@ -12,6 +12,7 @@ import { initMusic } from './lib/music'
 import ProfileCardSkeleton from './components/ProfileCardSkeleton'
 import MusicMenu from './components/MusicMenu'
 import SubmitProfileForm from './components/SubmitProfileForm'
+import { DEFAULT_FILTERS, getFilterData, getMatchingProfileIds } from './lib/filterData'
 import {
    trackStartGameClick,
    trackGameSessionStart,
@@ -63,6 +64,17 @@ export default function App() {
   const [sessionCount, setSessionCount]     = useState(0)
   const [showSessionEnd, setShowSessionEnd] = useState(false)
   const [showSubmitForm, setShowSubmitForm] = useState(false)
+  const [filters, setFilters] = useState(DEFAULT_FILTERS)
+  // null while the filter dataset hasn't loaded/matched yet
+  const [filteredIds, setFilteredIds] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+    getFilterData().then(data => {
+      if (!cancelled) setFilteredIds(getMatchingProfileIds(data, filters))
+    })
+    return () => { cancelled = true }
+  }, [filters])
 
   const fetchRandomProfile = useCallback(async (currentSeenIds) => {
     setLoading(true)
@@ -70,13 +82,18 @@ export default function App() {
     setGuesses({})
     setSubmitted(false)
 
-    const { data: idRows, error: idError } = await supabase
-      .from('profiles')
-      .select('id')
+    let allIds = filteredIds
+    if (!allIds) {
+      const { data: idRows, error: idError } = await supabase.from('profiles').select('id')
+      if (idError) { setError(idError.message); setLoading(false); return }
+      allIds = idRows.map(r => r.id)
+    }
 
-    if (idError) { setError(idError.message); setLoading(false); return }
-
-    const allIds    = idRows.map(r => r.id)
+    if (allIds.length === 0) {
+      setError('No applicants match your filters. Try widening them and start a new session.')
+      setLoading(false)
+      return
+    }
     const available = allIds.filter(id => !currentSeenIds.includes(id))
     const pool      = available.length > 0 ? available : allIds
 
@@ -97,7 +114,7 @@ export default function App() {
         trackLevelStart(currentSeenIds.length + 1)
       }
     setLoading(false)
-  }, [])
+  }, [filteredIds])
 
   // Start background music once, on mount — plays through landing, the
   // whole session, and session end. Safe to call more than once (see
@@ -225,6 +242,8 @@ export default function App() {
         <LandingPage
           onStart={() => { trackStartGameClick(); setShowSetupModal(true) }}
           onSubmitProfile={() => setShowSubmitForm(true)}
+          filters={filters}
+          onFiltersChange={setFilters}
         />
         {showSetupModal && (
           <SessionSetupModal
@@ -238,6 +257,9 @@ export default function App() {
               setGameStarted(true)
               trackGameSessionStart(n)
             }}
+            maxApplicants={filteredIds ? filteredIds.length : undefined}
+            filters={filters}
+            onFiltersChange={setFilters}
           />
         )}
       </>
