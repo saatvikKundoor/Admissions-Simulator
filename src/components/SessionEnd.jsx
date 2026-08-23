@@ -188,7 +188,7 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain, 
 
       {/* Primary score card */}
       <div className="bg-slate-900 rounded-3xl px-10 py-14 text-center mb-6 relative overflow-hidden shadow-xl border border-slate-800">
-        <p style={{ fontFamily: "'Playfair Display', serif" }}
+        <p aria-hidden="true" style={{ fontFamily: "'Playfair Display', serif" }}
            className="text-white text-6xl md:text-7xl font-semibold mb-4 relative z-10">
           {correctDisplay} / {totalDisplay}
         </p>
@@ -200,6 +200,13 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain, 
              mainDone ? 'opacity-100' : 'opacity-0'
            }`}>
           {flavorText(pct, total)}
+        </p>
+        {/* Screen-reader-only summary — announced once when the score
+            finishes counting up. */}
+        <p aria-live="polite" className="sr-only">
+          {mainDone
+            ? `Session complete. ${correct} out of ${total} schools correctly predicted across ${profileCount} applicant${profileCount !== 1 ? 's' : ''}. ${flavorText(pct, total)}`
+            : ''}
         </p>
 
         {/* Low Score Humor: Angled Rubber Stamp overlay */}
