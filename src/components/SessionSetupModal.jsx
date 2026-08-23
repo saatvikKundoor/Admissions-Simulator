@@ -4,7 +4,7 @@
 // session (1-20, default 5). Closing via the X reveals the landing page
 // again without starting the game.
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { playClick, playToggleClick, playSliderSnap } from '../lib/uiSfx'
 import FilterButton from './FilterButton'
 
@@ -22,6 +22,7 @@ function XIcon({ className }) {
 const MIN = 1
 const HARD_MAX = 20
 
+
 export default function SessionSetupModal({ value, onChange, onClose, onBegin, maxApplicants, filters, onFiltersChange }) {
   const noMatches = maxApplicants === 0
   const max = Math.max(MIN, Math.min(HARD_MAX, maxApplicants ?? HARD_MAX))
@@ -32,9 +33,52 @@ export default function SessionSetupModal({ value, onChange, onClose, onBegin, m
   useEffect(() => {
     if (!noMatches && value > max) onChange(max)
   }, [max, value, noMatches, onChange])
+
+  const modalRef = useRef(null)
+
+  // Focus trap: move focus into the modal on open, and cycle Tab/Shift+Tab
+  // within it instead of letting focus escape into the landing page behind
+  // the overlay. Re-runs whenever noMatches flips, since that swaps the
+  // slider block for the "no matches" message and changes which elements
+  // are focusable.
+  useEffect(() => {
+    const modalEl = modalRef.current
+    if (!modalEl) return
+
+    const focusableSelector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    const getFocusable = () =>
+      Array.from(modalEl.querySelectorAll(focusableSelector)).filter(el => !el.disabled)
+
+    getFocusable()[0]?.focus()
+
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const focusable = getFocusable()
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose, noMatches])
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/50 backdrop-blur-sm">
-      <div className="relative bg-[#F2F0EB] rounded-2xl p-8 max-w-md w-full shadow-2xl">
+      <div ref={modalRef} role="dialog" aria-modal="true" aria-label="Session length"
+           className="relative bg-[#F2F0EB] rounded-2xl p-8 max-w-md w-full shadow-2xl">
         <button
           onClick={() => { playToggleClick(); onClose() }}
           aria-label="Close"
@@ -43,13 +87,10 @@ export default function SessionSetupModal({ value, onChange, onClose, onBegin, m
           <XIcon className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-3 mb-2 pr-8">
-          <FilterButton filters={filters} onChange={onFiltersChange} />
-          <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
-             className="text-slate-400 text-xs uppercase tracking-widest">
-            Session length
-          </p>
-        </div>
+        <p style={{ fontFamily: "'JetBrains Mono', monospace" }}
+           className="text-slate-400 text-xs uppercase tracking-widest mb-2">
+          Session length
+        </p>
         <h2 style={{ fontFamily: "'Playfair Display', serif" }}
             className="text-2xl font-semibold text-slate-900 mb-6">
           How many applicants?

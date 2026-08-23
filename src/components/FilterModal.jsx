@@ -8,6 +8,9 @@ import { useEffect, useRef, useState } from 'react'
 import { getFilterData, getMatchingProfileIds, DEFAULT_FILTERS } from '../lib/filterData'
 import { playToggleClick } from '../lib/uiSfx'
 
+const FOCUSABLE_SELECTOR =
+  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+
 function XIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -109,6 +112,7 @@ function RangeSection({ title, color, min, max, step, minValue, maxValue, onMinC
 export default function FilterModal({ filters, onChange, onClose }) {
   const [draft, setDraft] = useState(filters)
   const [filterData, setFilterData] = useState(null)
+  const modalRef = useRef(null)
 
   useEffect(() => {
     let cancelled = false
@@ -123,11 +127,39 @@ export default function FilterModal({ filters, onChange, onClose }) {
     onClose()
   }
 
+  // Focus trap + initial focus. Re-runs once filterData resolves, since the
+  // modal renders a "Loading filter options…" line first with almost no
+  // focusable content, then swaps in the full form — the trap needs to
+  // recheck the focusable set after that swap, not just on mount.
   useEffect(() => {
-    function handleKeyDown(e) { if (e.key === 'Escape') requestClose() }
+    const modalEl = modalRef.current
+    if (!modalEl) return
+
+    const getFocusable = () => Array.from(modalEl.querySelectorAll(FOCUSABLE_SELECTOR))
+    getFocusable()[0]?.focus()
+
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        requestClose()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const focusable = getFocusable()
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [draft])
+  }, [draft, filterData])
 
   const matchCount = filterData ? getMatchingProfileIds(filterData, draft).length : null
 
@@ -146,7 +178,8 @@ export default function FilterModal({ filters, onChange, onClose }) {
 
   return (
     <div onClick={requestClose} className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8 bg-slate-900/50 backdrop-blur-sm">
-      <div onClick={(e) => e.stopPropagation()}
+      <div ref={modalRef} onClick={(e) => e.stopPropagation()}
+           role="dialog" aria-modal="true" aria-label="Filter applicants"
            className="relative bg-[#F2F0EB] rounded-2xl p-6 md:p-8 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl">
         <button onClick={requestClose} aria-label="Close"
                 className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors z-10">
