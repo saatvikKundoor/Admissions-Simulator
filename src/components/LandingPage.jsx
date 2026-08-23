@@ -11,6 +11,7 @@
 import { playClick } from '../lib/uiSfx'
 import SocialLinks from './SocialLinks'
 import MusicMenu from './MusicMenu'
+import FilterButton from './FilterButton'
 
 const ICON = {
   Admitted:   '/icons/admitted.png',
@@ -57,10 +58,11 @@ const STEP_COLORS = {
   sky:      'bg-[#D4EAF5]',
 }
 
-export default function LandingPage({ onStart, onSubmitProfile }) {
+export default function LandingPage({ onStart, onSubmitProfile, filters, onFiltersChange }) {
   return (
     <div className="min-h-screen bg-[#F2F0EB] paper-grain relative">
-      <div className="absolute top-6 right-6 md:right-10 lg:right-16 z-10">
+      <div className="absolute top-6 right-6 md:right-10 lg:right-16 z-10 flex items-center gap-2">
+        <FilterButton filters={filters} onChange={onFiltersChange} />
         <MusicMenu />
       </div>
       <div className="max-w-6xl mx-auto px-6 md:px-10 lg:px-16 py-14 md:py-20">
