@@ -22,7 +22,9 @@ function getAudioEl() {
   if (!audioEl) {
     audioEl = new Audio(TRACK_SRC)
     audioEl.loop = true
-    audioEl.volume = getMusicVolume()
+    const initialVolume = getMusicVolume()
+    audioEl.volume = initialVolume
+    audioEl.muted = initialVolume <= 0 // iOS ignores .volume; .muted is what actually works
   }
   return audioEl
 }
@@ -38,7 +40,10 @@ export function setMusicVolume(value) {
   const clamped = Math.min(1, Math.max(0, value))
   localStorage.setItem(STORAGE_KEY_VOLUME, String(clamped))
   const el = getAudioEl()
-  if (el) el.volume = clamped
+  if (el) {
+    el.volume = clamped
+    el.muted = clamped <= 0
+  }
 }
 
 function attemptPlay() {

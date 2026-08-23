@@ -40,7 +40,7 @@ function StatCard({ label, value, color, delay, trigger }) {
   return (
     <div 
       style={{ animationDelay: delay }}
-      className={`rounded-2xl px-7 py-6 text-center shadow-sm ${colors[color] ?? 'bg-slate-100'} ${
+      className={`rounded-2xl px-3 sm:px-7 py-4 sm:py-6 text-center shadow-sm ${colors[color] ?? 'bg-slate-100'} ${
         trigger ? 'animate-stamp' : 'opacity-0'
       }`}
     >
@@ -223,7 +223,7 @@ export default function SessionEnd({ correct, total, profileCount, onPlayAgain, 
       </div>
 
       {/* Secondary stat breakdown — Staggered Rubber Stamp Drop Animation */}
-      <div className="grid grid-cols-3 gap-4 mb-10">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-10">
         <StatCard label="Accuracy"   value={`${pctDisplay}%`} color="teal"     delay="0ms"   trigger={mainDone} />
         <StatCard label="Correct"    value={correctStatDisplay} color="lavender" delay="120ms" trigger={mainDone} />
         <StatCard label="Applicants" value={applicantsDisplay}   color="sky"      delay="240ms" trigger={mainDone} />

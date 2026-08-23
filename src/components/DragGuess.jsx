@@ -29,7 +29,7 @@ function DraggableChip({ id, name }) {
       {...listeners}
       {...attributes}
       onMouseEnter={playHover}
-      className={`flex items-center gap-1.5 px-3 py-2 bg-white rounded-lg border border-slate-200 text-sm
+      className={`flex items-center gap-1.5 px-3 py-2.5 min-h-[44px] bg-white rounded-lg border border-slate-200 text-sm
                   text-slate-800 font-medium shadow-sm select-none touch-none
                   cursor-grab active:cursor-grabbing transition-all duration-150
                   ${isDragging
@@ -146,7 +146,7 @@ export default function DragGuess({ schools, guesses, onDrop, footer }) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="grid grid-cols-[200px_1fr] gap-3 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-3 items-start">
         <UnplacedTray schools={unplaced} />
         <div className="flex flex-col gap-3">
           <DroppableColumn columnId="col-Admitted"   label="Admitted"   schools={admitted}   />

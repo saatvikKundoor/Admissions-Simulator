@@ -196,7 +196,7 @@ function SchoolListInput({ schools, onChange }) {
   return (
     <div className="space-y-2">
       {schools.map((s, i) => (
-        <div key={i} className="flex gap-2">
+        <div key={i} className="flex flex-col sm:flex-row gap-2">
           <input
             value={s.school_name}
             onChange={(e) => updateSchool(i, 'school_name', e.target.value)}
@@ -206,7 +206,7 @@ function SchoolListInput({ schools, onChange }) {
           <select
             value={s.outcome}
             onChange={(e) => updateSchool(i, 'outcome', e.target.value)}
-            className={`${fieldBase} w-36 shrink-0`}
+            className={`${fieldBase} w-full sm:w-36 sm:shrink-0`}
           >
             {OUTCOMES.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
