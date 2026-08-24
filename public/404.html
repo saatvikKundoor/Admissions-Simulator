@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 — Admissions Simulator</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --cream: #F2F0EB;
+        --slate-900: #0f172a;
+        --slate-600: #475569;
+        --slate-400: #94a3b8;
+        --red-bg: #FEE2E2;
+        --red-border: #FCA5A5;
+        --red-text: #991B1B;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--cream);
+        font-family: 'Inter', sans-serif;
+        color: var(--slate-900);
+        padding: 1.5rem;
+      }
+
+      .card {
+        max-width: 34rem;
+        width: 100%;
+        background: white;
+        border-radius: 1.25rem;
+        padding: 2.5rem 2.75rem;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.05);
+      }
+
+      .letterhead {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.75rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .logo {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+      }
+
+      .letterhead-text {
+        line-height: 1.3;
+      }
+
+      .letterhead-name {
+        font-family: 'Playfair Display', serif;
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--slate-900);
+      }
+
+      .eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--slate-400);
+      }
+
+      .stamp {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 9999px;
+        background: #f87171;
+        color: white;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-left: auto;
+        animation: stamp-down 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+      }
+
+      h1 {
+        font-family: 'Playfair Display', serif;
+        font-weight: 600;
+        font-size: 1.4rem;
+        margin: 0 0 1.5rem;
+        color: var(--slate-900);
+      }
+
+      p {
+        font-size: 0.95rem;
+        line-height: 1.65;
+        color: var(--slate-600);
+        margin: 0 0 1.1rem;
+        text-align: left;
+      }
+
+      .badge {
+        display: inline-block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: var(--red-text);
+        background: var(--red-bg);
+        border: 1px solid var(--red-border);
+        border-radius: 9999px;
+        padding: 0.25rem 0.7rem;
+      }
+
+      .signature {
+        margin: 1.75rem 0 2rem;
+      }
+      .signature p {
+        margin: 0;
+      }
+      .signature .valediction {
+        font-style: italic;
+        color: var(--slate-600);
+      }
+      .signature .team {
+        font-family: 'Playfair Display', serif;
+        font-weight: 600;
+        color: var(--slate-900);
+        margin-top: 0.15rem;
+      }
+
+      .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        align-items: flex-start;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .btn {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        border-radius: 0.75rem;
+        padding: 0.85rem 1.75rem;
+        transition: background-color 0.15s ease;
+      }
+
+      .btn-primary {
+        background: var(--slate-900);
+        color: white;
+      }
+      .btn-primary:hover { background: #1e293b; }
+
+      .btn-secondary {
+        color: var(--slate-400);
+        font-size: 0.8rem;
+      }
+      .btn-secondary:hover { color: var(--slate-600); }
+
+      @keyframes stamp-down {
+        0%   { transform: scale(1.9) rotate(-10deg); opacity: 0; }
+        55%  { transform: scale(0.85) rotate(3deg);  opacity: 1; }
+        75%  { transform: scale(1.08) rotate(-1deg); }
+        100% { transform: scale(1) rotate(0deg);     opacity: 1; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .stamp { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="letterhead">
+        <img src="/favicon.svg" alt="Admissions Simulator" class="logo" />
+        <div class="letterhead-text">
+          <p class="letterhead-name">Admissions Simulator</p>
+          <p class="eyebrow">Office of Admissions</p>
+        </div>
+        <div class="stamp" aria-hidden="true">&#10005;</div>
+      </div>
+
+      <h1>Dear Visitor,</h1>
+
+      <p>
+        Thank you for your interest in the page at <strong>this URL</strong>. Your request was
+        reviewed carefully by our systems, and after that review, we regret to inform you that
+        <strong> no page could be found matching the address you requested</strong>.
+      </p>
+      <p>
+        This year, we received an especially large number of requests for routes that don't
+        exist, and admission to a live page could not be extended to all of them. Please know
+        that this decision reflects the availability of that specific URL, not the quality of
+        wherever you were trying to go.
+      </p>
+      <p>
+        We encourage you to reconsider and submit a new request. A number of strong pages
+        remain available, including our home page below.
+      </p>
+
+      <span class="badge">Status: Not Found</span>
+
+      <div class="signature">
+        <p class="valediction">Sincerely,</p>
+        <p class="team">The Admissions Simulator Team</p>
+      </div>
+
+      <div class="actions">
+        <a class="btn btn-primary" href="/">Back to Admissions Simulator &#8594;</a>
+        <a class="btn btn-secondary" href="https://github.com/saatvikkundoor/admissions-simulator" target="_blank" rel="noopener noreferrer">
+          Looking for the source? It's on GitHub &#8594;
+        </a>
+      </div>
+    </main>
+  </body>
+</html>
