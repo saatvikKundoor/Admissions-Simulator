@@ -12,6 +12,7 @@ import { initMusic } from './lib/music'
 import ProfileCardSkeleton from './components/ProfileCardSkeleton'
 import MusicMenu from './components/MusicMenu'
 import SubmitProfileForm from './components/SubmitProfileForm'
+import PrivacyPolicy from './components/PrivacyPolicy'
 import { DEFAULT_FILTERS, getFilterData, getMatchingProfileIds } from './lib/filterData'
 import {
    trackStartGameClick,
@@ -64,6 +65,7 @@ export default function App() {
   const [sessionCount, setSessionCount]     = useState(0)
   const [showSessionEnd, setShowSessionEnd] = useState(false)
   const [showSubmitForm, setShowSubmitForm] = useState(false)
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false)
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
   // null while the filter dataset hasn't loaded/matched yet
   const [filteredIds, setFilteredIds] = useState(null)
@@ -236,12 +238,17 @@ export default function App() {
     return <SubmitProfileForm onClose={() => setShowSubmitForm(false)} />
   }
 
+  if (showPrivacyPolicy) {
+    return <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+  }
+  
   if (!gameStarted) {
     return (
       <>
         <LandingPage
           onStart={() => { trackStartGameClick(); setShowSetupModal(true) }}
           onSubmitProfile={() => setShowSubmitForm(true)}
+          onPrivacyPolicy={() => setShowPrivacyPolicy(true)}
           filters={filters}
           onFiltersChange={setFilters}
         />

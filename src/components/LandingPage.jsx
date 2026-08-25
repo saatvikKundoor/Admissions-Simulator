@@ -58,7 +58,7 @@ const STEP_COLORS = {
   sky:      'bg-[#D4EAF5]',
 }
 
-export default function LandingPage({ onStart, onSubmitProfile, filters, onFiltersChange }) {
+export default function LandingPage({ onStart, onSubmitProfile, onPrivacyPolicy, filters, onFiltersChange }) {
   return (
     <div className="min-h-screen bg-[#F2F0EB] paper-grain relative">
       <div className="absolute top-6 right-6 md:right-10 lg:right-16 z-10 flex items-center gap-2">
@@ -186,6 +186,15 @@ export default function LandingPage({ onStart, onSubmitProfile, filters, onFilte
                 className="text-sm text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors"
               >
                 Have a profile of your own? Submit it →
+              </button>
+            </div>
+            <div className="mt-3">
+              <button
+                onClick={onPrivacyPolicy}
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                className="text-sm text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors"
+              >
+                Privacy Policy
               </button>
             </div>
       </div>
