@@ -82,7 +82,6 @@ function VolumeSlider({ label, value, onChange }) {
           step={1}
           value={value}
           onChange={(e) => handleChange(Number(e.target.value))}
-          style={{ accentColor: '#0f172a' }}
           className="flex-1 h-1.5 cursor-pointer"
         />
         <Volume2Icon
