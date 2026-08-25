@@ -117,7 +117,6 @@ export default function SessionSetupModal({ value, onChange, onClose, onBegin, m
                if (next !== clampedValue) playSliderSnap((next - MIN) / (max - MIN || 1))
                onChange(next)
              }}
-            style={{ accentColor: '#0f172a' }}
             className="w-full h-2 cursor-pointer"
           />
           <div className="flex justify-between mt-1">

@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+
+:root {
+  --accent: #0f172a; /* slate-900 — matches your primary buttons */
+}
+
+input[type="checkbox"],
+input[type="range"] {
+  accent-color: var(--accent);
+}
+
 /* A quick, playful "stamp hitting paper" bounce — used whenever a school
    prediction icon appears or changes, so making a call feels like slamming
    down a rubber stamp rather than a flat state swap. */
@@ -63,4 +73,29 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 transparent; /* slate-400 thumb, transparent track */
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #94a3b8;
+  border-radius: 999px;
+  border: 2px solid #F2F0EB; /* creates padding around thumb using your cream bg */
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #64748b; /* slate-500 */
+}
+
+::selection {
+  background-color: #C8E6E2; /* your teal */
+  color: #0f172a; /* slate-900, keeps contrast */
 }
