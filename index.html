@@ -15,6 +15,14 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
+      // Consent Mode v2: analytics cookies stay denied until the player
+      // accepts them via the cookie banner. reapplyStoredConsent() (called
+      // on app boot in App.jsx) updates this immediately for returning
+      // players who already made a choice.
+      gtag('consent', 'default', {
+        analytics_storage: 'denied',
+      });
+
       gtag('config', 'G-X73PMC509T');
     </script>
   </head>

@@ -35,7 +35,7 @@ function SectionCard({ title, color, children }) {
   )
 }
 
-export default function PrivacyPolicy({ onClose }) {
+export default function PrivacyPolicy({ onClose, onOpenCookieSettings }) {
   return (
     <div className="min-h-screen bg-[#F2F0EB]">
       <div className="max-w-3xl mx-auto px-6 md:px-10 lg:px-16 py-10">
@@ -122,7 +122,35 @@ export default function PrivacyPolicy({ onClose }) {
             </p>
           </SectionCard>
 
-          <SectionCard title="5. Children's Privacy" color="teal">
+          <SectionCard title="5. Cookies & Similar Technologies" color="sky">
+            <p>We use two categories, and only one of them is optional:</p>
+            <ul className="list-disc list-inside space-y-1">
+              <li><strong>Necessary (always on).</strong> Not a cookie — your guess
+                mode, session length, and sound/music volume are saved in your
+                browser's local storage so they persist between visits. This never
+                leaves your device and can't be turned off, since the game can't
+                function without it.</li>
+              <li><strong>Analytics (optional).</strong> If you accept it, Google
+                Analytics (GA4) sets cookies to measure aggregate usage — session
+                counts, round lengths, accuracy trends. Off by default; you can
+                change this any time.</li>
+            </ul>
+            <p>
+              Cloudflare Web Analytics, which we also use for basic traffic stats, is
+              cookieless by design — it never sets an identifier and isn't covered
+              by the toggle above.
+            </p>
+            <button
+              onClick={onOpenCookieSettings}
+              style={{ fontFamily: "'Inter', sans-serif" }}
+              className="mt-1 px-4 py-2 rounded-lg text-sm font-semibold
+                         bg-slate-900 text-white hover:bg-slate-700 transition-colors"
+            >
+              Manage Cookie Settings
+            </button>
+          </SectionCard>
+
+          <SectionCard title="6. Children's Privacy" color="teal">
             <p>
               Admissions Simulator has no accounts, so we never knowingly collect personal
               information from anyone, including children. The game and its subject matter
@@ -132,7 +160,7 @@ export default function PrivacyPolicy({ onClose }) {
             </p>
           </SectionCard>
 
-          <SectionCard title="6. Third-Party Services" color="lavender">
+          <SectionCard title="7. Third-Party Services" color="lavender">
             <p>We rely on a small set of providers, each for a specific purpose:</p>
             <ul className="list-disc list-inside space-y-1">
               <li><strong>Supabase</strong> — hosts the applicant-profile database and submission queue.</li>
@@ -143,7 +171,7 @@ export default function PrivacyPolicy({ onClose }) {
             <p>Each operates under its own privacy policy for the technical data it processes on our behalf.</p>
           </SectionCard>
 
-          <SectionCard title="7. Data Retention" color="sky">
+          <SectionCard title="8. Data Retention" color="sky">
             <p>
               Anonymized applicant profiles that have entered the live game are kept
               indefinitely, since they're the core content of the game and contain no
@@ -154,7 +182,7 @@ export default function PrivacyPolicy({ onClose }) {
             </p>
           </SectionCard>
 
-          <SectionCard title="8. Your Rights" color="cream">
+          <SectionCard title="9. Your Rights" color="cream">
             <p>
               Because we don't collect information that identifies you, there's generally
               nothing tied to "you" to access, correct, or delete. The one exception is a
@@ -164,7 +192,7 @@ export default function PrivacyPolicy({ onClose }) {
             </p>
           </SectionCard>
 
-          <SectionCard title="9. Changes to This Policy" color="teal">
+          <SectionCard title="10. Changes to This Policy" color="teal">
             <p>
               If this policy changes, we'll update the "Last updated" date at the top of
               this page. Since the project is open-source, changes are also visible in the
@@ -172,7 +200,7 @@ export default function PrivacyPolicy({ onClose }) {
             </p>
           </SectionCard>
 
-          <SectionCard title="10. Contact" color="lavender">
+          <SectionCard title="11. Contact" color="lavender">
             <p>
               Questions, or a removal request for a submitted profile? Reach out via{' '}
               <a href="https://github.com/saatvikkundoor/admissions-simulator/issues"
