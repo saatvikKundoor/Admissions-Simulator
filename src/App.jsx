@@ -13,6 +13,9 @@ import ProfileCardSkeleton from './components/ProfileCardSkeleton'
 import MusicMenu from './components/MusicMenu'
 import SubmitProfileForm from './components/SubmitProfileForm'
 import PrivacyPolicy from './components/PrivacyPolicy'
+import CookieBanner from './components/CookieBanner'
+import CookiePreferencesModal from './components/CookiePreferencesModal'
+import { hasConsentDecision, reapplyStoredConsent } from './lib/consent'
 import { DEFAULT_FILTERS, getFilterData, getMatchingProfileIds } from './lib/filterData'
 import {
    trackStartGameClick,
@@ -67,6 +70,8 @@ export default function App() {
   const [showSubmitForm, setShowSubmitForm] = useState(false)
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false)
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
+  const [showCookieBanner, setShowCookieBanner] = useState(() => !hasConsentDecision())
+  const [showCookieSettings, setShowCookieSettings] = useState(false)
   // null while the filter dataset hasn't loaded/matched yet
   const [filteredIds, setFilteredIds] = useState(null)
 
@@ -123,6 +128,13 @@ export default function App() {
   // music.js), so this doesn't need to be gated behind gameStarted.
   useEffect(() => {
     initMusic()
+  }, [])
+
+  // Re-applies a returning player's stored cookie choice to GA4's Consent
+  // Mode. Runs once on boot, independent of gameStarted, so it applies
+  // whether they land on the landing page, mid-session, or wherever.
+  useEffect(() => {
+    reapplyStoredConsent()
   }, [])
 
   // Loading loop: on while a profile is actually in flight from Supabase,
@@ -234,21 +246,49 @@ export default function App() {
 
   const anyGuessed = Object.values(guesses).some(v => v !== null)
 
+  // Rendered on top of every screen below — fixed-position, so where it
+  // sits in the tree doesn't matter, only that every return path includes it.
+  const cookieOverlay = (
+    <>
+      {showCookieBanner && (
+        <CookieBanner onDecided={() => setShowCookieBanner(false)} />
+      )}
+      {showCookieSettings && (
+        <CookiePreferencesModal onClose={() => setShowCookieSettings(false)} />
+      )}
+    </>
+  )
+
   if (showSubmitForm) {
-    return <SubmitProfileForm onClose={() => setShowSubmitForm(false)} />
+    return (
+      <>
+        {cookieOverlay}
+        <SubmitProfileForm onClose={() => setShowSubmitForm(false)} />
+      </>
+    )
   }
 
   if (showPrivacyPolicy) {
-    return <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+    return (
+      <>
+        {cookieOverlay}
+        <PrivacyPolicy
+          onClose={() => setShowPrivacyPolicy(false)}
+          onOpenCookieSettings={() => setShowCookieSettings(true)}
+        />
+      </>
+    )
   }
   
   if (!gameStarted) {
     return (
       <>
+        {cookieOverlay}
         <LandingPage
           onStart={() => { trackStartGameClick(); setShowSetupModal(true) }}
           onSubmitProfile={() => setShowSubmitForm(true)}
           onPrivacyPolicy={() => setShowPrivacyPolicy(true)}
+          onCookieSettings={() => setShowCookieSettings(true)}
           filters={filters}
           onFiltersChange={setFilters}
         />
@@ -274,31 +314,38 @@ export default function App() {
   }
 
   if (showSessionEnd) return (
-    <div className="min-h-screen bg-[#F2F0EB]   flex items-center justify-center px-6 md:px-10 lg:px-16 py-16">
-      <SessionEnd
-        correct={sessionCorrect}
-        total={sessionTotal}
-        profileCount={sessionCount}
-        onPlayAgain={handlePlayAgain}
-        onHome={handleGoHome}
-        onSubmitProfile={() => setShowSubmitForm(true)}
-      />
-    </div>
+    <>
+      {cookieOverlay}
+      <div className="min-h-screen bg-[#F2F0EB]   flex items-center justify-center px-6 md:px-10 lg:px-16 py-16">
+        <SessionEnd
+          correct={sessionCorrect}
+          total={sessionTotal}
+          profileCount={sessionCount}
+          onPlayAgain={handlePlayAgain}
+          onHome={handleGoHome}
+          onSubmitProfile={() => setShowSubmitForm(true)}
+        />
+      </div>
+    </>
   )
 
   if (error) return (
-    <div className="min-h-screen bg-[#F2F0EB]   flex items-center justify-center px-4">
-      <div className="max-w-xl w-full bg-red-50 border border-red-200 rounded-2xl px-6 py-4">
-        <p className="text-sm font-semibold text-red-600 mb-1">Database error</p>
-        <p className="text-sm text-red-500">{error}</p>
+    <>
+      {cookieOverlay}
+      <div className="min-h-screen bg-[#F2F0EB]   flex items-center justify-center px-4">
+        <div className="max-w-xl w-full bg-red-50 border border-red-200 rounded-2xl px-6 py-4">
+          <p className="text-sm font-semibold text-red-600 mb-1">Database error</p>
+          <p className="text-sm text-red-500">{error}</p>
+        </div>
       </div>
-    </div>
+    </>
   )
 
   if (!profile && !loading) return null
 
   return (
     <div className="min-h-screen bg-[#F2F0EB]  ">
+      {cookieOverlay}
       <header className="px-6 md:px-10 lg:px-16 pt-10 pb-6">
         <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
